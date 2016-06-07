@@ -82,7 +82,6 @@ type alias SelectionChanged =
 
 {-| Provide True to control the autocomplete value,
     False to let the component control the value via a stylable `input` field.
-
     The default config provides False.
 -}
 isValueControlled : Bool -> Config msg -> Config msg
