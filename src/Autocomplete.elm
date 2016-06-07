@@ -346,6 +346,8 @@ viewList  model =
         viewSelectedItem model item
       else
         viewItem model item index
+    constrainedMatches =
+      List.take model.config.maxListSize model.matches
   in
     ul
       [ if model.config.useDefaultStyles then
@@ -353,7 +355,7 @@ viewList  model =
         else
           classList <| model.config.getClasses Styling.List
       ]
-      (List.indexedMap getItemView model.matches)
+      (List.indexedMap getItemView constrainedMatches)
 
 
 -- CONTROL FUNCTIONS
