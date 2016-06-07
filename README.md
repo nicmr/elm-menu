@@ -34,7 +34,7 @@ Custom styles via CSS classnames. Maybe insert custom HTML for items
 
 Control autocomplete inside a textarea or contenteditable
 
-![mentions](http://g.recordit.co/NIqgZm5zs6.gif)
+![mentions](https://cloud.githubusercontent.com/assets/3099999/15878393/82c18b38-2ccf-11e6-969f-ac1df4bf0f8d.gif)
 
 
 ## Try it out
