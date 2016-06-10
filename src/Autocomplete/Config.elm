@@ -1,9 +1,9 @@
-module Autocomplete.Config exposing (Config, ItemHtmlFn, Text, InputValue, Index, Completed, ValueChanged, SelectionChanged, defaultConfig, isValueControlled, setClassesFn, setCompletionKeyCodes, setItemHtml, setMaxListSize, setFilterFn, setCompareFn, setNoMatchesDisplay, setLoadingDisplay, setAccessibilityProperties)
+module Autocomplete.Config exposing (Config, ItemHtmlFn, Text, InputValue, Index, Accessibility, Completed, ValueChanged, SelectionChanged, defaultConfig, isValueControlled, setClassesFn, setCompletionKeyCodes, setItemHtml, setMaxListSize, setFilterFn, setCompareFn, setNoMatchesDisplay, setLoadingDisplay, setAccessibilityProperties)
 
 {-| Configuration module for the Autocomplete component.
 
 # Definition
-@docs Config, ItemHtmlFn, Text, InputValue, Index, Completed, ValueChanged, SelectionChanged
+@docs Config, ItemHtmlFn, Text, InputValue, Index, Completed, ValueChanged, SelectionChanged, Accessibility
 
 # Defaults
 @docs defaultConfig
@@ -40,6 +40,9 @@ type alias Model msg =
   , accessibility : Maybe Accessibility
   }
 
+{-| Information needed for better screen reader accessibility.
+    `owneeID` will differentiate multiple instances of the autocomplete.
+-}
 type alias Accessibility = { owneeID : String }
 
 {-| Given the text of an item, produce some HTML
