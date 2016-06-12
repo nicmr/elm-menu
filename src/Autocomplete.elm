@@ -296,6 +296,7 @@ viewInput  model =
       , onInput SetValue
       , onWithOptions "keydown" options dec
       , onFocus (ShowMenu True)
+      , onBlur  (ShowMenu False)
       , value model.value
       , if model.config.useDefaultStyles then
           style DefaultStyles.inputStyles
@@ -328,7 +329,7 @@ viewSelectedItem  model item =
         style DefaultStyles.selectedItemStyles
       else
         classList <| model.config.getClasses Styling.SelectedItem
-    , onClick Complete
+    , onMouseDown Complete
     ]
     [ model.config.itemHtmlFn item ]
 
