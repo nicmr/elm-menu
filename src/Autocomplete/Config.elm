@@ -9,7 +9,7 @@ module Autocomplete.Config exposing (Config, ItemHtmlFn, Text, InputValue, Index
 @docs defaultConfig
 
 # Modifiers
-@docs isValueControlled, setClassesFn, setCompletionKeyCodes, setItemHtml, setMaxListSize, setFilterFn, setCompareFn, setNoMatchesDisplay, setLoadingDisplay, setAccessibilityProperties
+@docs hideMenuIfEmpty, isValueControlled, setClassesFn, setCompletionKeyCodes, setItemHtml, setMaxListSize, setFilterFn, setCompareFn, setNoMatchesDisplay, setLoadingDisplay, setAccessibilityProperties
 
 
 -}
