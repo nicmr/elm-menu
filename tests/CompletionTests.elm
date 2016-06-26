@@ -15,6 +15,7 @@ import Html.App
 import Html
 import Autocomplete.Autocomplete as Autocomplete
 import Autocomplete.Config
+import String
 
 
 main : Program Never
@@ -52,15 +53,30 @@ checkWithinBoundedIndex items index desiredItem =
                 ( getLastItem, desiredItem )
 
 
+firstItem : String
+firstItem =
+    "elm"
+
+
+initialItems : List String
+initialItems =
+    [ firstItem, "is", "fun" ]
+
+
+newItems : List String
+newItems =
+    [ firstItem, "is", "fun", "and", "functional" ]
+
+
 testCompletion : Test
 testCompletion =
     describe "completes"
         [ describe "given list of strings"
             [ test "the first element is selected"
                 <| \() ->
-                    Autocomplete.init [ "elm", "is", "functional" ]
+                    Autocomplete.init initialItems
                         |> Autocomplete.getSelectedItem
-                        |> Assert.equal "elm"
+                        |> Assert.equal firstItem
             ]
         , describe "given an immediate complete message"
             [ fuzz (list string) "the current value is filled w/ first item"
@@ -71,8 +87,8 @@ testCompletion =
                         |> Autocomplete.getCurrentValue
                         |> (\value ->
                                 case List.head items of
-                                    Just firstItem ->
-                                        Assert.equal firstItem value
+                                    Just first ->
+                                        Assert.equal first value
 
                                     Nothing ->
                                         Assert.equal "" value
@@ -96,5 +112,77 @@ testCompletion =
                                 |> checkWithinBoundedIndex items index
                     in
                         Assert.equal item desiredItem
+            ]
+        , describe "given a ShowMenu Msg"
+            [ test "with a True argument"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init []
+                                |> Autocomplete.update (Autocomplete.ShowMenu True)
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.true "showMenu value is set to True" model.showMenu
+            , test "with a False argument"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init []
+                                |> Autocomplete.update (Autocomplete.ShowMenu False)
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.false "showMenu value is set to False" model.showMenu
+            ]
+        , describe "given an UpdateItems Msg"
+            [ test "with a list of strings, the items match the list of strings"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init initialItems
+                                |> Autocomplete.update (Autocomplete.UpdateItems newItems)
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.equal newItems model.items
+            , test "with a list of strings, the matches are updated correctly"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init initialItems
+                                |> Autocomplete.update (Autocomplete.SetValue "e")
+                                |> fst
+                                |> Autocomplete.update (Autocomplete.UpdateItems newItems)
+
+                        expectedMatches =
+                            List.filter (\item -> String.startsWith "e" item) newItems
+                                |> List.sort
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.equal expectedMatches model.matches
+            ]
+        , describe "given a ShowLoading Msg"
+            [ test "with a True argument"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init []
+                                |> Autocomplete.update (Autocomplete.SetLoading True)
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.true "isLoading value is set to True" model.isLoading
+            , test "with a False argument"
+                <| \() ->
+                    let
+                        ( autocomplete, _ ) =
+                            Autocomplete.init []
+                                |> Autocomplete.update (Autocomplete.SetLoading False)
+                    in
+                        case autocomplete of
+                            Autocomplete.Autocomplete model ->
+                                Assert.false "isLoading value is set to False" model.isLoading
             ]
         ]
