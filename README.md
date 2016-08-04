@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
 
+> **Note:** A much simpler and more powerful API is fast approaching via #26. [I paired with Elm author @evancz](https://twitter.com/czaplic/status/761265397437833216). I'm working on this implementation now!
+
 An Autocomplete component in Elm because typing is hard.
 
 Here's a simple example.
