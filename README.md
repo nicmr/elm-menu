@@ -6,7 +6,6 @@ Autocomplete menus have _just enough_ functionality to be tedious to implement a
 This is a flexible library for handling the needs of many different autocompletes.
 
 Your data is stored separately; keep it in whatever shape makes the most sense for your application.
-An autocomplete has a lot of uses: form input, mentions, search, etc.
 
 Make an issue if this library cannot handle your scenario and we'll investigate together if it makes sense in the larger
 context!
