@@ -2,6 +2,16 @@
 
 [![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
 
+Autocomplete menus have _just enough_ functionality to be tedious to implement again and again.
+This is a flexible library for handling the needs of many different autocompletes.
+
+Your data is stored separately; keep it in whatever shape makes the most sense for your application.
+An autocomplete has a lot of uses: form input, mentions, search, etc.
+
+Make an issue if this library cannot handle your scenario and we'll investigate together if it makes sense in the larger
+context!
+
+I recommend looking at the [examples](https://github.com/thebritican/elm-autocomplete/tree/master/examples) before diving into the API or source code!
 
 ## Examples
 
@@ -27,7 +37,3 @@ Design inspired by [elm-sortable-table](https://github.com/evancz/elm-sortable-t
 Read about why these usage rules are good rules [here](https://github.com/evancz/elm-sortable-table/tree/1.0.0#usage-rules).
 
 The [API Design Session video](https://www.youtube.com/watch?v=KSuCYUqY058) w/ Evan Czaplicki (@evancz) that brought us to this API.
-
-## Try it out
-
-Find these examples and more in the [examples](https://github.com/thebritican/elm-autocomplete/tree/master/examples) folder.
