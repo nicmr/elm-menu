@@ -1,197 +1,383 @@
-module Autocomplete exposing (Autocomplete, Status, init, initWithConfig, Msg, update, view, getSelectedItem, getCurrentValue, showMenu, setValue, setItems, setLoading, MenuNavigation, navigateMenu, defaultStatus)
+module Autocomplete
+    exposing
+        ( view
+        , update
+        , subscription
+        , viewConfig
+        , updateConfig
+        , State
+        , empty
+        , reset
+        , resetToFirstItem
+        , resetToLastItem
+        , KeySelected
+        , MouseSelected
+        , Msg
+        , ViewConfig
+        , UpdateConfig
+        , HtmlDetails
+        , viewWithSections
+        , sectionConfig
+        , viewWithSectionsConfig
+        , SectionNode
+        , SectionConfig
+        , ViewWithSectionsConfig
+        )
 
-{-| A customizable Autocomplete component.
+{-|
+ This library helps you create an autocomplete menu.
+ Your data is stored separately; keep it in whatever shape makes the most sense for your application.
+ An autocomplete has a lot of uses: form input, mentions, search, etc.
 
-The Autocomplete consists of a menu, a list, the list's many items, and an input.
-All of these views are styleable via css classes.
-See the Styling module.
+ I have (hopefully!) given the users of this library a large amount of customizability.
 
-The currently selected item is preserved and styled with the aforementioned module.
+ I recommend looking at the [examples](https://github.com/thebritican/elm-autocomplete/tree/master/examples) before diving into the API or source code
 
-This selection is modified by keyboard arrow input, mouse clicks, and API consumer defined keyCodes.
-
-Check out how easy it is to plug into a simple program:
-```
-main =
-  let
-    updateAutocomplete msg autocomplete =
-      let
-        ( updatedAutocomplete, status ) = Autocomplete.update msg autocomplete
-        -- status communicates extra information the parent on every update
-        -- e.g. when the selection changes, the value changes, or the user has triggered a completion
-      in
-        updatedAutocomplete
-  in
-    Html.beginnerProgram
-      { model = Autocomplete.init [ "elm", "makes", "coding", "life", "easy" ]
-      , update = updateAutocomplete
-      , view = Autocomplete.view
-      }
-```
-
-# Definition
-@docs Autocomplete, Status
-
-# Initialize
-@docs init, initWithConfig
-
-# Update
-@docs Msg, update
-
-# Views
+# View
 @docs view
 
-# Helpers
-@docs getSelectedItem, getCurrentValue
+# Update
+@docs update, subscription
 
-# Controlling Behavior
+# Configuration
+@docs viewConfig, updateConfig
 
-If you want the autocomplete to be completely controlled, with no `input` field, use the Config
-module's `isValueControlled` function to designate that the API consumer will control the autocomplete.
-This is useful for mentions and other autocomplete examples inside textareas, contenteditable, etc.
+# State
+@docs State, empty, reset, resetToFirstItem, resetToLastItem, KeySelected, MouseSelected
 
-Defined below are functions to control:
-  the autocomplete's menu navigation, set its value, items, and whether its menu should be shown.
+# Definitions
+@docs Msg, ViewConfig, UpdateConfig, HtmlDetails
 
-@docs showMenu, setValue, setItems, setLoading, MenuNavigation, navigateMenu
+# Sections
+Sections require a separate view and configuration since another type of data must be
+provided: sections.
 
-# Defaults
-@docs defaultStatus
+**Note:** Section data can have any shape: your static configuration will
+just tell the autocomplete how to grab an ID for a section and its related data.
+
+# View
+@docs viewWithSections
+
+# Configuration
+@docs sectionConfig, viewWithSectionsConfig
+
+# Definitions
+@docs SectionNode, SectionConfig, ViewWithSectionsConfig
 
 -}
 
 import Autocomplete.Autocomplete as Internal
-import Autocomplete.Config as Config exposing (Config, Text, Index, InputValue, Completed, ValueChanged, SelectionChanged)
-import Autocomplete.DefaultStyles as DefaultStyles
-import Autocomplete.Styling as Styling
 import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Json.Decode as Json
-import String
+import Html.App as Html
+import Char exposing (KeyCode)
 
 
-{-| The Autocomplete model.
-    It assumes filtering is based upon strings.
+{-| Tracks keyboard and mouse selection within the menu.
 -}
-type alias Autocomplete =
-    Internal.Autocomplete
+type State
+    = State Internal.State
 
 
-type alias Model =
-    Internal.Model
-
-
-{-| Information for parent components about the update of the Autocomplete
+{-| True if the element has been selected via keyboard navigation.
 -}
-type alias Status =
-    Internal.Status
+type alias KeySelected =
+    Bool
 
 
-{-| A description of a state change
+{-| True if the element has been selected via mouse hover.
 -}
-type alias Msg =
-    Internal.Msg
+type alias MouseSelected =
+    Bool
 
 
-{-| Creates an Autocomplete from a list of items with a default `String.startsWith` filter
+{-| A State with nothing selected.
 -}
-init : List String -> Autocomplete
-init items =
-    Internal.init items
+empty : State
+empty =
+    State Internal.empty
 
 
-{-| Creates an Autocomplete with a custom configuration
+{-| Reset the keyboard navigation but leave the mouse state alone.
+Convenient when the two selections are represented separately.
 -}
-initWithConfig : List String -> Config.Config Msg -> Autocomplete
-initWithConfig items config =
-    Internal.initWithConfig items config
+reset : State -> State
+reset (State state) =
+    State <| Internal.reset state
 
 
-{-| The quintessential Elm Architecture reducer.
+{-| Like `reset` but defaults to a keyboard selection of the first item.
 -}
-update : Msg -> Autocomplete -> ( Autocomplete, Status )
-update msg auto =
-    Internal.update msg auto
+resetToFirstItem : List data -> (data -> String) -> State -> State
+resetToFirstItem data toId (State state) =
+    State <| Internal.resetToFirstItem data toId state
 
 
-{-| The full Autocomplete view, with menu and input.
+{-| Like `reset` but defaults to a keyboard selection of the last item.
 -}
-view : Autocomplete -> Html Msg
-view auto =
-    Internal.view auto
+resetToLastItem : List data -> (data -> String) -> State -> State
+resetToLastItem data toId (State state) =
+    State <| Internal.resetToLastItem data toId state
 
 
 
--- CONTROL FUNCTIONS
+-- UPDATE
 
 
-{-| Set whether the menu should be shown
+{-| A message type for the autocomplete to update.
 -}
-showMenu : Bool -> Autocomplete -> Autocomplete
-showMenu bool auto =
-    Internal.showMenu bool auto
+type Msg
+    = Msg Internal.Msg
 
 
-{-| Set current autocomplete value
+{-| Configuration for updates
 -}
-setValue : String -> Autocomplete -> Autocomplete
-setValue value auto =
-    Internal.setValue value auto
+type UpdateConfig msg data
+    = UpdateConfig (Internal.UpdateConfig msg data)
 
 
-{-| Sets the Autocomplete's list of items
+{-| Use this function to update the autocomplete's `State`.
+Provide the same data as your view.
 -}
-setItems : List String -> Autocomplete -> Autocomplete
-setItems items auto =
-    Internal.setItems items auto
+update : UpdateConfig msg data -> Msg -> State -> List data -> Int -> ( State, Maybe msg )
+update (UpdateConfig config) (Msg msg) (State state) data howManyToShow =
+    let
+        ( newState, maybeMsg ) =
+            Internal.update config msg state data howManyToShow
+    in
+        ( State newState, maybeMsg )
 
 
-{-| Sets whether the Autocomplete shows its loading display or not. Useful for remote updates.
+{-| Create the configuration for your `update` function (`UpdateConfig`).
+Say we have a `List Person` that we want to show as a series of options.
+We would create an `UpdateConfig` like so:
+
+    import Autocomplete
+    updateConfig : Autocomplete.UpdateConfig Msg Person
+    updateConfig =
+        Autocomplete.updateConfig
+            { toId = .name
+            , onKeyDown =
+                \code maybeId ->
+                    if code == 38 || code == 40 then
+                        Nothing
+                    else if code == 13 then
+                        Maybe.map SelectPerson maybeId
+                    else
+                        Just Reset
+            , onTooLow = Nothing
+            , onTooHigh = Nothing
+            , onMouseEnter = \_ -> Nothing
+            , onMouseLeave = \_ -> Nothing
+            , onMouseClick = \id -> Just <| SelectPerson id
+            , separateSelections = False
+            }
+
+You provide the following information in your autocomplete configuration:
+  - `toId` &mdash; turn a `Person` into a unique ID.
+  - `ul` &mdash; specify any non-behavioral attributes you'd like for the list menu.
+  - `li` &mdash; specify any non-behavioral attributes and children for a list item: both selection states are provided.
 -}
-setLoading : Bool -> Autocomplete -> Autocomplete
-setLoading bool auto =
-    Internal.setLoading bool auto
+updateConfig :
+    { toId : data -> String
+    , onKeyDown : KeyCode -> Maybe String -> Maybe msg
+    , onTooLow : Maybe msg
+    , onTooHigh : Maybe msg
+    , onMouseEnter : String -> Maybe msg
+    , onMouseLeave : String -> Maybe msg
+    , onMouseClick : String -> Maybe msg
+    , separateSelections : Bool
+    }
+    -> UpdateConfig msg data
+updateConfig config =
+    UpdateConfig <| Internal.updateConfig config
 
 
-{-| The possible actions to navigate the autocomplete menu
+{-| Add this to your `program`'s subscriptions so the the autocomplete menu will respond to keyboard input.
 -}
-type alias MenuNavigation =
-    Internal.MenuNavigation
+subscription : Sub Msg
+subscription =
+    Sub.map Msg Internal.subscription
 
 
-{-| When controlling the Autocomplete value, use this function
-    to provide a message for updating the menu selection.
+{-|
+Take a list of `data` and turn it into an autocomplete menu.
+The `ViewConfig` argument is the configuration for the autocomplete view.
+`ViewConfig` describes the HTML we want to show for each item and the list.
+The `State` argument describes what is selected via mouse and keyboard.
+
+**Note:** The `State` and `List data` should live in your Model.
+The `ViewConfig` for the autocomplete belongs in your view code.
+`ViewConfig` should not exist in your model.
+Describe any potential autocomplete configurations statically.
+This pattern has been inspired by [Elm Sortable Table](http://package.elm-lang.org/packages/evancz/elm-sortable-table/latest).
 -}
-navigateMenu : MenuNavigation -> Autocomplete -> Msg
-navigateMenu navigation auto =
-    Internal.navigateMenu navigation auto
+view : ViewConfig data -> Int -> State -> List data -> Html Msg
+view (ViewConfig config) howManyToShow (State state) data =
+    Html.map Msg <| Internal.view config howManyToShow state data
 
 
-
--- HELPERS
-
-
-{-| Get the text of the currently selected item
+{-| Presents an autocomplete menu with sections.
+You can follow the same instructions as described for `view`, providing a more advanced configuration and different data shape.
+`ViewWithSectionsConfig` sets up your autocomplete to handle sectioned data.
+The sectioned data becomes the new data argument for `viewWithSections`.
 -}
-getSelectedItem : Autocomplete -> Text
-getSelectedItem auto =
-    Internal.getSelectedItem auto
+viewWithSections : ViewWithSectionsConfig data sectionData -> Int -> State -> List sectionData -> Html Msg
+viewWithSections (ViewWithSectionsConfig config) howManyToShow (State state) sections =
+    Html.map Msg <| Internal.viewWithSections config howManyToShow state sections
 
 
-{-| Get the string currently entered by the user in the Autocomplete
+{-|
+HTML lists require `li` tags as children, so we allow you to specify everything about `li` HTML node except the nodeType.
 -}
-getCurrentValue : Autocomplete -> String
-getCurrentValue auto =
-    Internal.getCurrentValue auto
+type alias HtmlDetails msg =
+    { attributes : List (Attribute msg)
+    , children : List (Html msg)
+    }
 
 
+{-|
+Configuration for your autocomplete, describing your menu and its items.
 
--- DEFAULTS
-
-
-{-| A status record where everything is False
+**Note:** Your `ViewConfig` should never be held in your model. It should only appear in view code.
 -}
-defaultStatus : Status
-defaultStatus =
-    Internal.defaultStatus
+type ViewConfig data
+    = ViewConfig (Internal.ViewConfig data)
+
+
+{-| Create the configuration for your `view` function (`ViewConfig`).
+Say we have a `List Person` that we want to show as a series of options.
+We would create a `ViewConfig` like so:
+
+    import Autocomplete
+    config : Autocomplete.Config Person Msg
+    config =
+      Autocomplete.viewConfig
+        { toId = .name
+        , ul = [ class "autocomplete-list" ]
+        , li = customizedLi
+        }
+
+    customizedLi :
+        Autocomplete.KeySelected
+        -> Autocomplete.MouseSelected
+        -> Person
+        -> Autocomplete.HtmlDetails Never
+    customizedLi keySelected mouseSelected person =
+        if keySelected then
+            { attributes = [ class "autocomplete-key-item" ]
+            , children = [ Html.text person.name ]
+            }
+        else if mouseSelected then
+            { attributes = [ class "autocomplete-mouse-item" ]
+            , children = [ Html.text person.name ]
+            }
+        else
+            { attributes = [ class "autocomplete-item" ]
+            , children = [ Html.text person.name ]
+            }
+You provide the following information in your autocomplete configuration:
+  - `toId` &mdash; turn a `Person` into a unique ID. This lets us use
+  [`Html.Keyed`][keyed] under the hood to make sorting faster.
+  - `ul` &mdash; specify any non-behavioral attributes you'd like for the list menu.
+  - `li` &mdash; specify any non-behavioral attributes and children for a list item: both selection states are provided.
+See the [examples][] to get a better understanding!
+[keyed]: http://package.elm-lang.org/packages/elm-lang/html/latest/Html-Keyed
+[examples]: https://github.com/thebritican/elm-autocomplete/tree/master/examples
+-}
+viewConfig :
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    }
+    -> ViewConfig data
+viewConfig config =
+    ViewConfig <| Internal.viewConfig config
+
+
+{-|
+Configuration for your autocomplete, describing your menu, its sections, and its items.
+
+**Note:** This should never live in your model.
+-}
+type ViewWithSectionsConfig data sectionData
+    = ViewWithSectionsConfig (Internal.ViewWithSectionsConfig data sectionData)
+
+
+{-| The same configuration as viewConfig, but provide a section configuration as well.
+-}
+viewWithSectionsConfig :
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    , section : SectionConfig data sectionData
+    }
+    -> ViewWithSectionsConfig data sectionData
+viewWithSectionsConfig config =
+    ViewWithSectionsConfig
+        <| case config.section of
+            SectionConfig section ->
+                Internal.viewWithSectionsConfig { config | section = section }
+
+
+{-| The configuration for a section of the menu.
+
+**Note:** This should not live in your model.
+-}
+type SectionConfig data sectionData
+    = SectionConfig (Internal.SectionConfig data sectionData)
+
+
+{-| Describe everything about a Section HTML node.
+-}
+type alias SectionNode msg =
+    { nodeType : String
+    , attributes : List (Attribute msg)
+    , children : List (Html msg)
+    }
+
+
+{-| Create the `SectionConfig` for your `view` function.
+Say we have a `List Century` that we want to show as a series of sections.
+We would create a `SectionConfig` like so:
+
+    type alias Century =
+      { title : String
+      , people : List Person
+      }
+
+    import Autocomplete
+    sectionConfig : Autocomplete.SectionConfig Person Century
+    sectionConfig =
+        Autocomplete.sectionConfig
+            { toId = .title
+            , getData = .people
+            , ul = [ class "autocomplete-section-list" ]
+            , li =
+                \section ->
+                    { nodeType = "div"
+                    , attributes = [ class "autocomplete-section-item" ]
+                    , children =
+                        [ div [ class "autocomplete-section-box" ]
+                            [ strong [ class "autocomplete-section-text" ] [ text section.title ]
+                            ]
+                        ]
+                    }
+            }
+
+
+
+You provide the following information in your autocomplete configuration:
+  - `toId` &mdash; turn a `Century` into a unique ID.
+  - `getData` &mdash; extract the data from `Century`, in this case: `List Person`.
+  - `ul` &mdash; specify any non-behavioral attributes you'd like for the section list.
+  - `li` &mdash; specify any non-behavioral attributes and children for a section.
+-}
+sectionConfig :
+    { toId : sectionData -> String
+    , getData : sectionData -> List data
+    , ul : List (Attribute Never)
+    , li : sectionData -> SectionNode Never
+    }
+    -> SectionConfig data sectionData
+sectionConfig section =
+    SectionConfig <| Internal.sectionConfig section

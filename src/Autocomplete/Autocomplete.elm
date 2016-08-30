@@ -1,377 +1,446 @@
-module Autocomplete.Autocomplete exposing (Autocomplete(..), Model, Status, Msg(..), MenuNavigation(..), init, initWithConfig, update, updateModel, view, navigateMenu, showMenu, setValue, setItems, setLoading, getSelectedItem, getCurrentValue, defaultStatus)
+module Autocomplete.Autocomplete
+    exposing
+        ( view
+        , update
+        , subscription
+        , viewConfig
+        , updateConfig
+        , State
+        , empty
+        , reset
+        , resetToFirstItem
+        , resetToLastItem
+        , KeySelected
+        , MouseSelected
+        , Msg
+        , ViewConfig
+        , UpdateConfig
+        , HtmlDetails
+        , viewWithSections
+        , sectionConfig
+        , viewWithSectionsConfig
+        , SectionNode
+        , SectionConfig
+        , ViewWithSectionsConfig
+        )
 
-import Autocomplete.Config as Config exposing (Config, Text, Index, InputValue, Completed, ValueChanged, SelectionChanged)
-import Autocomplete.DefaultStyles as DefaultStyles
-import Autocomplete.Styling as Styling
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Json.Decode as Json
-import String
+import Char exposing (KeyCode)
+import Html exposing (Html, Attribute)
+import Html.App
+import Html.Keyed
+import Html.Events
+import Keyboard
+import Native.Tricks
 
 
-type Autocomplete
-    = Autocomplete Model
+trickyMap : Attribute Never -> Attribute Msg
+trickyMap =
+    Native.Tricks.trickyMap
 
 
-type alias Model =
-    { value : InputValue
-    , items : List Text
-    , matches : List Text
-    , selectedItemIndex : Index
-    , showMenu : Bool
-    , isLoading : Bool
-    , config : Config Msg
+
+-- MODEL
+
+
+type alias State =
+    { key : Maybe String
+    , mouse : Maybe String
     }
 
 
-type alias Status =
-    { completed : Completed
-    , valueChanged : ValueChanged
-    , selectionChanged : SelectionChanged
-    }
+type alias KeySelected =
+    Bool
 
 
-init : List String -> Autocomplete
-init items =
-    Autocomplete
-        { value = ""
-        , items = items
-        , matches = items
-        , selectedItemIndex = 0
-        , showMenu = False
-        , config = Config.defaultConfig
-        , isLoading = False
-        }
+type alias MouseSelected =
+    Bool
 
 
-initWithConfig : List String -> Config.Config Msg -> Autocomplete
-initWithConfig items config =
-    Autocomplete
-        { value = ""
-        , items = items
-        , matches = items
-        , selectedItemIndex = 0
-        , showMenu = False
-        , isLoading = False
-        , config = config
-        }
+empty : State
+empty =
+    { key = Nothing, mouse = Nothing }
+
+
+reset : State -> State
+reset { key, mouse } =
+    { key = Nothing, mouse = mouse }
+
+
+resetToFirstItem : List data -> (data -> String) -> State -> State
+resetToFirstItem data toId state =
+    let
+        setFirstItem datum newState =
+            { newState | key = Just <| toId datum }
+    in
+        case List.head data of
+            Nothing ->
+                reset state
+
+            Just datum ->
+                reset state
+                    |> setFirstItem datum
+
+
+resetToLastItem : List data -> (data -> String) -> State -> State
+resetToLastItem data toId state =
+    resetToFirstItem (List.reverse data) toId state
+
+
+
+-- UPDATE
+
+
+{-| Add this to your `program`s subscriptions to animate the spinner.
+-}
+subscription : Sub Msg
+subscription =
+    Keyboard.downs KeyDown
 
 
 type Msg
-    = Complete
-    | ChangeSelection Int
-    | ShowMenu Bool
-    | UpdateItems (List String)
-    | SetValue String
-    | SetLoading Bool
+    = KeyDown KeyCode
+    | WentTooLow
+    | WentTooHigh
+    | MouseEnter String
+    | MouseLeave String
+    | MouseClick String
+    | NoOp
 
 
-update : Msg -> Autocomplete -> ( Autocomplete, Status )
-update msg auto =
+type alias UpdateConfig msg data =
+    { onKeyDown : KeyCode -> Maybe String -> Maybe msg
+    , onTooLow : Maybe msg
+    , onTooHigh : Maybe msg
+    , onMouseEnter : String -> Maybe msg
+    , onMouseLeave : String -> Maybe msg
+    , onMouseClick : String -> Maybe msg
+    , toId : data -> String
+    , separateSelections : Bool
+    }
+
+
+updateConfig :
+    { toId : data -> String
+    , onKeyDown : KeyCode -> Maybe String -> Maybe msg
+    , onTooLow : Maybe msg
+    , onTooHigh : Maybe msg
+    , onMouseEnter : String -> Maybe msg
+    , onMouseLeave : String -> Maybe msg
+    , onMouseClick : String -> Maybe msg
+    , separateSelections : Bool
+    }
+    -> UpdateConfig msg data
+updateConfig { toId, onKeyDown, onTooLow, onTooHigh, onMouseEnter, onMouseLeave, onMouseClick, separateSelections } =
+    { toId = toId
+    , onKeyDown = onKeyDown
+    , onTooLow = onTooLow
+    , onTooHigh = onTooHigh
+    , onMouseEnter = onMouseEnter
+    , onMouseLeave = onMouseLeave
+    , onMouseClick = onMouseClick
+    , separateSelections = separateSelections
+    }
+
+
+update : UpdateConfig msg data -> Msg -> State -> List data -> Int -> ( State, Maybe msg )
+update config msg state data howManyToShow =
     case msg of
-        ShowMenu bool ->
-            updateAutocomplete msg auto
+        KeyDown keyCode ->
+            let
+                boundedList =
+                    List.map config.toId data
+                        |> List.take howManyToShow
+
+                newKey =
+                    navigateWithKey keyCode boundedList state.key
+            in
+                if newKey == state.key && keyCode == 38 then
+                    update config WentTooHigh state data howManyToShow
+                else if newKey == state.key && keyCode == 40 then
+                    update config WentTooLow state data howManyToShow
+                else if config.separateSelections then
+                    ( { state | key = newKey }
+                    , config.onKeyDown keyCode newKey
+                    )
+                else
+                    ( { key = newKey, mouse = newKey }
+                    , config.onKeyDown keyCode newKey
+                    )
+
+        WentTooLow ->
+            ( state
+            , config.onTooLow
+            )
+
+        WentTooHigh ->
+            ( state
+            , config.onTooHigh
+            )
+
+        MouseEnter id ->
+            ( resetMouseStateWithId config.separateSelections id state
+            , config.onMouseEnter id
+            )
+
+        MouseLeave id ->
+            ( resetMouseStateWithId config.separateSelections id state
+            , config.onMouseLeave id
+            )
+
+        MouseClick id ->
+            ( resetMouseStateWithId config.separateSelections id state
+            , config.onMouseClick id
+            )
+
+        NoOp ->
+            ( state, Nothing )
+
+
+resetMouseStateWithId : Bool -> String -> State -> State
+resetMouseStateWithId separateSelections id state =
+    if separateSelections then
+        { key = state.key, mouse = Just id }
+    else
+        { key = Just id, mouse = Just id }
+
+
+getPreviousItemId : List String -> String -> String
+getPreviousItemId ids selectedId =
+    Maybe.withDefault selectedId <| List.foldr (getPrevious selectedId) Nothing ids
+
+
+getPrevious : String -> String -> Maybe String -> Maybe String
+getPrevious id selectedId resultId =
+    if selectedId == id then
+        Just id
+    else if (Maybe.withDefault "" resultId) == id then
+        Just selectedId
+    else
+        resultId
+
+
+getNextItemId : List String -> String -> String
+getNextItemId ids selectedId =
+    Maybe.withDefault selectedId <| List.foldl (getPrevious selectedId) Nothing ids
+
+
+navigateWithKey : Int -> List String -> Maybe String -> Maybe String
+navigateWithKey code ids maybeId =
+    case code of
+        38 ->
+            Maybe.map (getPreviousItemId ids) maybeId
+
+        40 ->
+            case maybeId of
+                Nothing ->
+                    case List.head ids of
+                        Nothing ->
+                            Nothing
+
+                        Just firstId ->
+                            Just firstId
+
+                Just key ->
+                    Just <| getNextItemId ids key
 
         _ ->
-            updateAutocomplete msg auto
-                |> toggleMenu
+            maybeId
 
 
-updateAutocomplete : Msg -> Autocomplete -> ( Autocomplete, Status )
-updateAutocomplete msg (Autocomplete model) =
-    updateModel msg model
-        |> makeOpaque
+view : ViewConfig data -> Int -> State -> List data -> Html Msg
+view config howManyToShow state data =
+    viewList config howManyToShow state data
 
 
-updateModel : Msg -> Model -> ( Model, Status )
-updateModel msg model =
-    case msg of
-        Complete ->
-            let
-                selectedItem =
-                    List.drop model.selectedItemIndex model.matches
-                        |> List.head
-            in
-                case selectedItem of
-                    Just item ->
-                        ( { model | value = item }, { defaultStatus | completed = True, valueChanged = True } )
-
-                    Nothing ->
-                        ( model, { defaultStatus | completed = True } )
-
-        ChangeSelection newIndex ->
-            let
-                boundedNewIndex =
-                    Basics.max newIndex 0
-                        |> Basics.min ((List.length model.matches) - 1)
-                        |> Basics.min (model.config.maxListSize - 1)
-            in
-                ( { model | selectedItemIndex = boundedNewIndex }, { defaultStatus | selectionChanged = True } )
-
-        ShowMenu bool ->
-            let
-                shouldShowMenu =
-                    if model.config.hideMenuIfEmpty && (String.isEmpty model.value) then
-                        False
-                    else
-                        bool
-            in
-                ( { model | showMenu = shouldShowMenu }, defaultStatus )
-
-        UpdateItems items ->
-            ( { model
-                | items = items
-                , matches =
-                    List.filter (\item -> model.config.filterFn item model.value) items
-                        |> List.sortWith model.config.compareFn
-              }
-            , defaultStatus
-            )
-
-        SetValue value ->
-            if value == "" then
-                ( { model
-                    | value = value
-                    , matches =
-                        model.items
-                            |> List.sortWith model.config.compareFn
-                    , selectedItemIndex = 0
-                  }
-                , { defaultStatus | valueChanged = True }
-                )
-            else
-                ( { model
-                    | value = value
-                    , matches =
-                        List.filter (\item -> model.config.filterFn item value) model.items
-                            |> List.sortWith model.config.compareFn
-                    , selectedItemIndex = 0
-                  }
-                , { defaultStatus | valueChanged = True }
-                )
-
-        SetLoading bool ->
-            ( { model | isLoading = bool }, defaultStatus )
-
-
-toggleMenu : ( Autocomplete, Status ) -> ( Autocomplete, Status )
-toggleMenu ( Autocomplete model, status ) =
-    if model.config.isValueControlled then
-        ( Autocomplete model, status )
-    else if status.completed then
-        ( showMenu False (Autocomplete model), status )
-    else
-        ( showMenu True (Autocomplete model), status )
-
-
-makeOpaque : ( Model, Status ) -> ( Autocomplete, Status )
-makeOpaque ( model, status ) =
-    ( Autocomplete model, status )
-
-
-view : Autocomplete -> Html Msg
-view (Autocomplete model) =
-    div [ onBlur (ShowMenu False) ]
-        [ if model.config.isValueControlled then
-            div [] []
-          else
-            viewInput model
-        , if not model.showMenu then
-            div [] []
-          else if model.isLoading then
-            model.config.loadingDisplay
-          else if List.isEmpty model.matches then
-            model.config.noMatchesDisplay
-          else
-            viewMenu model
-        ]
-
-
-viewInput : Model -> Html Msg
-viewInput model =
+viewWithSections : ViewWithSectionsConfig data sectionData -> Int -> State -> List sectionData -> Html Msg
+viewWithSections config howManyToShow state sections =
     let
-        options =
-            { preventDefault = True, stopPropagation = False }
+        getKeyedItems section =
+            ( config.section.toId section, viewSection config state section )
+    in
+        Html.Keyed.ul (List.map trickyMap config.section.ul)
+            (List.map getKeyedItems sections)
 
-        getStrBool bool =
-            if bool then
-                "true"
-            else
-                "false"
 
-        dec =
-            (Json.customDecoder keyCode
-                (\code ->
-                    if code == 38 then
-                        Ok (navigateMenu Previous (Autocomplete model))
-                    else if code == 40 then
-                        Ok (navigateMenu Next (Autocomplete model))
-                    else if code == 27 then
-                        Ok (ShowMenu False)
-                    else if List.member code model.config.completionKeyCodes then
-                        Ok (navigateMenu Select (Autocomplete model))
-                    else
-                        Err "not handling that key"
+viewSection : ViewWithSectionsConfig data sectionData -> State -> sectionData -> Html Msg
+viewSection config state section =
+    let
+        sectionNode =
+            config.section.li section
+
+        attributes =
+            List.map trickyMap sectionNode.attributes
+
+        customChildren =
+            List.map (Html.App.map (\html -> NoOp)) sectionNode.children
+
+        getKeyedItems datum =
+            ( config.toId datum, viewData config state datum )
+
+        viewItemList =
+            Html.Keyed.ul (List.map trickyMap config.ul)
+                (config.section.getData section
+                    |> List.map getKeyedItems
                 )
-            )
 
-        accessibilityAttributes =
-            case model.config.accessibility of
-                Just aria ->
-                    let
-                        descendantID =
-                            aria.owneeID ++ "-" ++ (toString model.selectedItemIndex)
-                    in
-                        [ attribute "ariaActiveDescendantID" descendantID
-                        , attribute "ariaOwneeID" aria.owneeID
-                        ]
+        children =
+            List.append customChildren [ viewItemList ]
+    in
+        Html.li attributes
+            [ Html.node sectionNode.nodeType attributes children ]
+
+
+viewData : ViewWithSectionsConfig data sectionData -> State -> data -> Html Msg
+viewData { toId, li } { key, mouse } data =
+    let
+        id =
+            toId data
+
+        listItemData =
+            li (isSelected key) (isSelected mouse) data
+
+        customAttributes =
+            (List.map trickyMap listItemData.attributes)
+
+        customLiAttr =
+            List.append customAttributes
+                [ Html.Events.onMouseEnter (MouseEnter id)
+                , Html.Events.onMouseLeave (MouseLeave id)
+                , Html.Events.onClick (MouseClick id)
+                ]
+
+        isSelected maybeId =
+            case maybeId of
+                Just someId ->
+                    someId == id
 
                 Nothing ->
-                    [ attribute "ariaActiveDescendantID" ""
-                    , attribute "ariaOwneeID" ""
-                    ]
+                    False
     in
-        input
-            (List.append
-                [ type' "text"
-                , onInput SetValue
-                , onWithOptions "keydown" options dec
-                , onFocus (ShowMenu True)
-                , onBlur (ShowMenu False)
-                , value model.value
-                , if model.config.useDefaultStyles then
-                    style DefaultStyles.inputStyles
-                  else
-                    classList <| model.config.getClasses Styling.Input
-                , attribute "role" "combobox"
-                , attribute "ariaAutoComplete" "list"
-                , attribute "ariaHasPopup" (getStrBool model.showMenu)
-                , attribute "ariaExpanded" (getStrBool model.showMenu)
-                ]
-                accessibilityAttributes
+        Html.li customLiAttr
+            (List.map (Html.App.map (\html -> NoOp)) listItemData.children)
+
+
+viewList : ViewConfig data -> Int -> State -> List data -> Html Msg
+viewList config howManyToShow state data =
+    let
+        customUlAttr =
+            List.map trickyMap config.ul
+
+        getKeyedItems datum =
+            ( config.toId datum, viewItem config state datum )
+    in
+        Html.Keyed.ul customUlAttr
+            (List.take howManyToShow data
+                |> List.map getKeyedItems
             )
-            []
 
 
-viewItem : Model -> Text -> Index -> Html Msg
-viewItem model item index =
-    li
-        [ if model.config.useDefaultStyles then
-            style DefaultStyles.itemStyles
-          else
-            classList <| model.config.getClasses Styling.Item
-        , onMouseEnter (ChangeSelection index)
-        ]
-        [ model.config.itemHtmlFn item ]
-
-
-viewSelectedItem : Model -> Text -> Html Msg
-viewSelectedItem model item =
-    li
-        [ if model.config.useDefaultStyles then
-            style DefaultStyles.selectedItemStyles
-          else
-            classList <| model.config.getClasses Styling.SelectedItem
-        , onMouseDown Complete
-        ]
-        [ model.config.itemHtmlFn item ]
-
-
-viewMenu : Model -> Html Msg
-viewMenu model =
-    div
-        [ if model.config.useDefaultStyles then
-            style DefaultStyles.menuStyles
-          else
-            classList <| model.config.getClasses Styling.Menu
-        ]
-        [ viewList model ]
-
-
-viewList : Model -> Html Msg
-viewList model =
+viewItem : ViewConfig data -> State -> data -> Html Msg
+viewItem { toId, li } { key, mouse } data =
     let
-        getItemView index item =
-            if index == model.selectedItemIndex then
-                viewSelectedItem model item
-            else
-                viewItem model item index
+        id =
+            toId data
 
-        constrainedMatches =
-            List.take model.config.maxListSize model.matches
+        listItemData =
+            li (isSelected key) (isSelected mouse) data
+
+        customAttributes =
+            (List.map trickyMap listItemData.attributes)
+
+        customLiAttr =
+            List.append customAttributes
+                [ Html.Events.onMouseEnter (MouseEnter id)
+                , Html.Events.onMouseLeave (MouseLeave id)
+                , Html.Events.onClick (MouseClick id)
+                ]
+
+        isSelected maybeId =
+            case maybeId of
+                Just someId ->
+                    someId == id
+
+                Nothing ->
+                    False
     in
-        ul
-            [ if model.config.useDefaultStyles then
-                style DefaultStyles.listStyles
-              else
-                classList <| model.config.getClasses Styling.List
-            ]
-            (List.indexedMap getItemView constrainedMatches)
+        Html.li customLiAttr
+            (List.map (Html.App.map (\html -> NoOp)) listItemData.children)
 
 
-showMenu : Bool -> Autocomplete -> Autocomplete
-showMenu bool auto =
-    fst (updateAutocomplete (ShowMenu bool) auto)
+type alias HtmlDetails msg =
+    { attributes : List (Attribute msg)
+    , children : List (Html msg)
+    }
 
 
-setValue : String -> Autocomplete -> Autocomplete
-setValue value auto =
-    fst (updateAutocomplete (SetValue value) auto)
+type alias ViewConfig data =
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    }
 
 
-setItems : List String -> Autocomplete -> Autocomplete
-setItems items auto =
-    fst (updateAutocomplete (UpdateItems items) auto)
+type alias ViewWithSectionsConfig data sectionData =
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    , section : SectionConfig data sectionData
+    }
 
 
-setLoading : Bool -> Autocomplete -> Autocomplete
-setLoading bool auto =
-    fst (update (SetLoading bool) auto)
+type alias SectionConfig data sectionData =
+    { toId : sectionData -> String
+    , getData : sectionData -> List data
+    , ul : List (Attribute Never)
+    , li : sectionData -> SectionNode Never
+    }
 
 
-type MenuNavigation
-    = Previous
-    | Next
-    | Select
+type alias SectionNode msg =
+    { nodeType : String
+    , attributes : List (Attribute msg)
+    , children : List (Html msg)
+    }
 
 
-navigateMenu : MenuNavigation -> Autocomplete -> Msg
-navigateMenu navigation (Autocomplete model) =
-    case navigation of
-        Previous ->
-            ChangeSelection (model.selectedItemIndex - 1)
-
-        Next ->
-            ChangeSelection (model.selectedItemIndex + 1)
-
-        Select ->
-            Complete
-
-
-getSelectedItem : Autocomplete -> Text
-getSelectedItem (Autocomplete model) =
-    let
-        maybeSelectedItem =
-            List.drop model.selectedItemIndex model.matches
-                |> List.head
-    in
-        case maybeSelectedItem of
-            Just item ->
-                item
-
-            Nothing ->
-                model.value
+viewConfig :
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    }
+    -> ViewConfig data
+viewConfig { toId, ul, li } =
+    { toId = toId
+    , ul = ul
+    , li = li
+    }
 
 
-getCurrentValue : Autocomplete -> String
-getCurrentValue (Autocomplete model) =
-    model.value
+viewWithSectionsConfig :
+    { toId : data -> String
+    , ul : List (Attribute Never)
+    , li : KeySelected -> MouseSelected -> data -> HtmlDetails Never
+    , section : SectionConfig data sectionData
+    }
+    -> ViewWithSectionsConfig data sectionData
+viewWithSectionsConfig { toId, ul, li, section } =
+    { toId = toId
+    , ul = ul
+    , li = li
+    , section = section
+    }
 
 
-defaultStatus : Status
-defaultStatus =
-    { completed = False
-    , valueChanged = False
-    , selectionChanged = False
+sectionConfig :
+    { toId : sectionData -> String
+    , getData : sectionData -> List data
+    , ul : List (Attribute Never)
+    , li : sectionData -> SectionNode Never
+    }
+    -> SectionConfig data sectionData
+sectionConfig { toId, getData, ul, li } =
+    { toId = toId
+    , getData = getData
+    , ul = ul
+    , li = li
     }
