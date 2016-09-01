@@ -66,24 +66,40 @@ reset { key, mouse } =
     { key = Nothing, mouse = mouse }
 
 
-resetToFirstItem : List data -> (data -> String) -> State -> State
-resetToFirstItem data toId state =
+resetToFirstItem : List data -> UpdateConfig msg data -> Int -> State -> State
+resetToFirstItem data config howManyToShow state =
+    resetToFirst (List.take howManyToShow data) config state
+
+
+resetToFirst : List data -> UpdateConfig msg data -> State -> State
+resetToFirst data { toId, separateSelections } state =
     let
         setFirstItem datum newState =
             { newState | key = Just <| toId datum }
     in
         case List.head data of
             Nothing ->
-                reset state
+                if separateSelections then
+                    empty
+                else
+                    reset state
 
             Just datum ->
-                reset state
-                    |> setFirstItem datum
+                if separateSelections then
+                    reset state
+                        |> setFirstItem datum
+                else
+                    empty
+                        |> setFirstItem (Debug.log "data" datum)
 
 
-resetToLastItem : List data -> (data -> String) -> State -> State
-resetToLastItem data toId state =
-    resetToFirstItem (List.reverse data) toId state
+resetToLastItem : List data -> UpdateConfig msg data -> Int -> State -> State
+resetToLastItem data config howManyToShow state =
+    let
+        reversedData =
+            List.reverse <| List.take howManyToShow data
+    in
+        resetToFirst reversedData config state
 
 
 

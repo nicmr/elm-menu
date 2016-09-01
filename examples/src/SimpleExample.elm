@@ -46,7 +46,7 @@ init =
 type Msg
     = SetQuery String
     | SetAutoState Autocomplete.Msg
-    | Reset
+    | Reset Bool
     | SelectPerson String
     | NoOp
 
@@ -72,8 +72,15 @@ update msg model =
                     Just updateMsg ->
                         update updateMsg newModel
 
-        Reset ->
-            { model | autoState = Autocomplete.resetToFirstItem model.people .name model.autoState } ! []
+        Reset toTop ->
+            { model
+                | autoState =
+                    if toTop then
+                        Autocomplete.resetToFirstItem model.people updateConfig model.howManyToShow model.autoState
+                    else
+                        Autocomplete.resetToLastItem model.people updateConfig model.howManyToShow model.autoState
+            }
+                ! []
 
         SelectPerson id ->
             let
@@ -152,9 +159,9 @@ updateConfig =
                 else if code == 13 then
                     Maybe.map SelectPerson maybeId
                 else
-                    Just Reset
-        , onTooLow = Nothing
-        , onTooHigh = Nothing
+                    Just <| Reset False
+        , onTooLow = Just <| Reset True
+        , onTooHigh = Just <| Reset False
         , onMouseEnter = \_ -> Nothing
         , onMouseLeave = \_ -> Nothing
         , onMouseClick = \id -> Just <| SelectPerson id

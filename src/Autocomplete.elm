@@ -107,16 +107,16 @@ reset (State state) =
 
 {-| Like `reset` but defaults to a keyboard selection of the first item.
 -}
-resetToFirstItem : List data -> (data -> String) -> State -> State
-resetToFirstItem data toId (State state) =
-    State <| Internal.resetToFirstItem data toId state
+resetToFirstItem : List data -> UpdateConfig msg data -> Int -> State -> State
+resetToFirstItem data (UpdateConfig config) howManyToShow (State state) =
+    State <| Internal.resetToFirstItem data config howManyToShow state
 
 
 {-| Like `reset` but defaults to a keyboard selection of the last item.
 -}
-resetToLastItem : List data -> (data -> String) -> State -> State
-resetToLastItem data toId (State state) =
-    State <| Internal.resetToLastItem data toId state
+resetToLastItem : List data -> UpdateConfig msg data -> Int -> State -> State
+resetToLastItem data (UpdateConfig config) howManyToShow (State state) =
+    State <| Internal.resetToLastItem data config howManyToShow state
 
 
 
