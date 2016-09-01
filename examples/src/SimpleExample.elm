@@ -76,9 +76,9 @@ update msg model =
             { model
                 | autoState =
                     if toTop then
-                        Autocomplete.resetToFirstItem model.people updateConfig model.howManyToShow model.autoState
+                        Autocomplete.resetToFirstItem (acceptablePeople model) updateConfig model.howManyToShow model.autoState
                     else
-                        Autocomplete.resetToLastItem model.people updateConfig model.howManyToShow model.autoState
+                        Autocomplete.resetToLastItem (acceptablePeople model) updateConfig model.howManyToShow model.autoState
             }
                 ! []
 
