@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Autocomplete
 import Html exposing (..)
@@ -19,18 +19,37 @@ main =
         }
 
 
+port caretPosition : (CaretPosition -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map SetAutoState Autocomplete.subscription
+    Sub.batch
+        [ Sub.map SetAutoState Autocomplete.subscription
+        , caretPosition SetCaretPosition
+        ]
 
 
 type alias Model =
     { people : List Person
     , autoState : Autocomplete.State
     , howManyToShow : Int
+    , value : String
+    , position : Position
     , query : String
     , showMenu : Bool
+    , caretPos : CaretPosition
     }
+
+
+type alias CaretPosition =
+    { top : Int
+    , left : Int
+    }
+
+
+type alias Position =
+    Int
 
 
 init : Model
@@ -38,28 +57,44 @@ init =
     { people = presidents
     , autoState = Autocomplete.empty
     , howManyToShow = 5
+    , value = ""
+    , position = 0
     , query = ""
-    , showMenu = True
+    , showMenu = False
+    , caretPos = { top = 0, left = 0 }
     }
 
 
 type Msg
-    = SetQuery String
+    = SetValue String
     | SetAutoState Autocomplete.Msg
     | Reset Bool
     | SelectPerson String
+    | SetCaretPosition CaretPosition
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SetQuery newQuery ->
+        SetValue value ->
             let
+                stringToPos =
+                    String.slice 0 model.position model.value
+
+                mention =
+                    String.dropLeft model.position model.value
+
+                query =
+                    if String.endsWith "@" stringToPos then
+                        mention
+                    else
+                        value
+
                 showMenu =
-                    not << List.isEmpty <| (acceptablePeople newQuery model.people)
+                    not << List.isEmpty <| (acceptablePeople query model.people)
             in
-                { model | query = newQuery, showMenu = showMenu } ! []
+                { model | value = value, showMenu = showMenu, query = query } ! []
 
         SetAutoState autoMsg ->
             let
@@ -102,6 +137,9 @@ update msg model =
                 }
                     ! []
 
+        SetCaretPosition pos ->
+            { model | caretPos = pos } ! []
+
         NoOp ->
             model ! []
 
@@ -131,15 +169,19 @@ view model =
         div []
             (List.append
                 [ h1 [] [ text "U.S. Presidents" ]
-                , input
-                    [ onInput SetQuery
-                    , onWithOptions "keydown" options dec
-                    , value model.query
-                    ]
-                    []
+                , viewEditor model
                 ]
                 menu
             )
+
+
+viewEditor model =
+    textarea
+        [ onInput SetValue
+          -- , onWithOptions "keydown" options dec
+        , value model.value
+        ]
+        []
 
 
 acceptablePeople : String -> List Person -> List Person
