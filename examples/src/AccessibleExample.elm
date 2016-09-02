@@ -62,7 +62,7 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "msg" msg of
+    case msg of
         SetQuery newQuery ->
             let
                 showMenu =
@@ -220,18 +220,35 @@ view model =
 
                 Nothing ->
                     model.query
+
+        activeDescendant attributes =
+            case model.selectedPerson of
+                Just person ->
+                    (attribute "aria-activedescendant"
+                        person.name
+                    )
+                        :: attributes
+
+                Nothing ->
+                    attributes
     in
         div []
             (List.append
                 [ h1 [] [ text "U.S. Presidents" ]
                 , input
-                    [ onInput SetQuery
-                    , onWithOptions "keydown" options dec
-                    , value query
-                    , id "president-input"
-                    , property "role" (JE.string "combobox")
-                    , property "aria-autocomplete" (JE.string "list")
-                    ]
+                    (activeDescendant
+                        [ onInput SetQuery
+                        , onWithOptions "keydown" options dec
+                        , value query
+                        , id "president-input"
+                        , autocomplete False
+                        , attribute "aria-owns" "list-of-presidents"
+                        , attribute "aria-expanded" <| String.toLower <| toString model.showMenu
+                        , attribute "aria-haspopup" <| String.toLower <| toString model.showMenu
+                        , attribute "role" "combobox"
+                        , attribute "aria-autocomplete" "list"
+                        ]
+                    )
                     []
                 ]
                 menu
@@ -267,7 +284,7 @@ updateConfig =
                     Just <| Reset
         , onTooLow = Just <| Wrap False
         , onTooHigh = Just <| Wrap True
-        , onMouseEnter = \_ -> Nothing
+        , onMouseEnter = \id -> Just <| PreviewPerson id
         , onMouseLeave = \_ -> Nothing
         , onMouseClick = \id -> Just <| SelectPersonMouse id
         , separateSelections = False
@@ -290,15 +307,15 @@ customizedLi :
     -> Autocomplete.HtmlDetails Never
 customizedLi keySelected mouseSelected person =
     if keySelected then
-        { attributes = [ class "autocomplete-key-item" ]
+        { attributes = [ class "autocomplete-key-item", id person.name ]
         , children = [ Html.text person.name ]
         }
     else if mouseSelected then
-        { attributes = [ class "autocomplete-mouse-item" ]
+        { attributes = [ class "autocomplete-mouse-item", id person.name ]
         , children = [ Html.text person.name ]
         }
     else
-        { attributes = [ class "autocomplete-item" ]
+        { attributes = [ class "autocomplete-item", id person.name ]
         , children = [ Html.text person.name ]
         }
 
