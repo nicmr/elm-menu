@@ -61,9 +61,12 @@ empty =
     { key = Nothing, mouse = Nothing }
 
 
-reset : State -> State
-reset { key, mouse } =
-    { key = Nothing, mouse = mouse }
+reset : UpdateConfig msg data -> State -> State
+reset { separateSelections } { key, mouse } =
+    if separateSelections then
+        { key = Nothing, mouse = mouse }
+    else
+        empty
 
 
 resetToFirstItem : List data -> UpdateConfig msg data -> Int -> State -> State
@@ -72,25 +75,25 @@ resetToFirstItem data config howManyToShow state =
 
 
 resetToFirst : List data -> UpdateConfig msg data -> State -> State
-resetToFirst data { toId, separateSelections } state =
+resetToFirst data config state =
     let
+        { toId, separateSelections } =
+            config
+
         setFirstItem datum newState =
             { newState | key = Just <| toId datum }
     in
         case List.head data of
             Nothing ->
-                if separateSelections then
-                    empty
-                else
-                    reset state
+                empty
 
             Just datum ->
                 if separateSelections then
-                    reset state
+                    reset config state
                         |> setFirstItem datum
                 else
                     empty
-                        |> setFirstItem (Debug.log "data" datum)
+                        |> setFirstItem datum
 
 
 resetToLastItem : List data -> UpdateConfig msg data -> Int -> State -> State
@@ -247,17 +250,7 @@ navigateWithKey code ids maybeId =
             Maybe.map (getPreviousItemId ids) maybeId
 
         40 ->
-            case maybeId of
-                Nothing ->
-                    case List.head ids of
-                        Nothing ->
-                            Nothing
-
-                        Just firstId ->
-                            Just firstId
-
-                Just key ->
-                    Just <| getNextItemId ids key
+            Maybe.map (getNextItemId ids) maybeId
 
         _ ->
             maybeId

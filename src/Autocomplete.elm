@@ -100,9 +100,9 @@ empty =
 {-| Reset the keyboard navigation but leave the mouse state alone.
 Convenient when the two selections are represented separately.
 -}
-reset : State -> State
-reset (State state) =
-    State <| Internal.reset state
+reset : UpdateConfig msg data -> State -> State
+reset (UpdateConfig config) (State state) =
+    State <| Internal.reset config state
 
 
 {-| Like `reset` but defaults to a keyboard selection of the first item.

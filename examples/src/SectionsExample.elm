@@ -75,7 +75,7 @@ update msg model =
                         update updateMsg newModel
 
         Reset ->
-            { model | autoState = Autocomplete.reset model.autoState } ! []
+            { model | autoState = Autocomplete.reset updateConfig model.autoState } ! []
 
         SelectPerson id ->
             { model
