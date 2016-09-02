@@ -19,8 +19,8 @@ new: clean-build all
 
 $(ELM_BUILD): elm
 
-simple:
-	elm make --yes --output $(ELM_BUILD) $(SOURCE_DIR)/SimpleExample.elm
+accessible:
+	elm make --yes --output $(ELM_BUILD) $(SOURCE_DIR)/AccessibleExample.elm
 
 sections:
 	elm make --yes --output $(ELM_BUILD) $(SOURCE_DIR)/SectionsExample.elm

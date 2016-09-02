@@ -4,31 +4,19 @@ There are multiple examples for you to explore in the `./src` directory.
 
 ## Pick one to build
 
-#### Dead simple autocomplete
+#### WAI-ARIA Accessible Example
 
-Default autocomplete based on Github mentions CSS: `./src/SimpleExample.elm`
+Autocomplete based on Github mentions CSS: `./src/SimpleExample.elm`
 
-To build :`make simple`
+To build: `make accessible`
 
-#### Simple CSS Class Styling
+#### Sections Example
 
-A simple, styled example: `./src/StyledExample.elm`.
+Autocomplete with sections
 
-To build: `make styled`
+To build: `make sections`
 
-#### HTTP
-
-An HTTP fetching example: `./src/RemoteExample.elm`
-
-To build: `make remote`
-
-#### Typeahead Example
-
-An advanced styling example: `./src/AdvancedExample.elm`
-
-To build: `make typeahead`
-
-#### Mentions Example
+#### Mentions Example [WIP]
 
 A textarea with controlled autocompletes inside: `./src/MentionsExample.elm`
 
@@ -43,9 +31,3 @@ Or, any of these without `make`:
 After building one of these, except the mentions example, simply open `example.html` in your favorite browser!
 
 Open `mention-example.html` in your browser to run the mentions example.
-
-### TODO
-
-- [] Make examples hot reloadable with elm-live
-- [] Improve this build process
-- [] Make the Mention example better and more robust
