@@ -8,6 +8,8 @@ import Html.App as Html
 import String
 import Json.Decode as Json
 import Json.Encode as JE
+import Dom
+import Task
 
 
 main : Program Never
@@ -52,98 +54,109 @@ type Msg
     | Wrap Bool
     | Reset
     | HandleEscape
-    | SelectPerson String
+    | SelectPersonKeyboard String
+    | SelectPersonMouse String
     | PreviewPerson String
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        newModel =
-            case Debug.log "msg" msg of
-                SetQuery newQuery ->
-                    let
-                        showMenu =
-                            not << List.isEmpty <| (acceptablePeople newQuery model.people)
-                    in
-                        { model | query = newQuery, showMenu = showMenu, selectedPerson = Nothing }
+    case Debug.log "msg" msg of
+        SetQuery newQuery ->
+            let
+                showMenu =
+                    not << List.isEmpty <| (acceptablePeople newQuery model.people)
+            in
+                { model | query = newQuery, showMenu = showMenu, selectedPerson = Nothing } ! []
 
-                SetAutoState autoMsg ->
-                    let
-                        ( newState, maybeMsg ) =
-                            Autocomplete.update updateConfig autoMsg model.autoState (acceptablePeople model.query model.people) model.howManyToShow
+        SetAutoState autoMsg ->
+            let
+                ( newState, maybeMsg ) =
+                    Autocomplete.update updateConfig autoMsg model.autoState (acceptablePeople model.query model.people) model.howManyToShow
 
-                        newModel =
-                            { model | autoState = newState }
-                    in
-                        case maybeMsg of
-                            Nothing ->
-                                newModel
+                newModel =
+                    { model | autoState = newState }
+            in
+                case maybeMsg of
+                    Nothing ->
+                        newModel ! []
 
-                            Just updateMsg ->
-                                fst <| update updateMsg newModel
+                    Just updateMsg ->
+                        update updateMsg newModel
 
-                HandleEscape ->
-                    let
-                        validOptions =
-                            not <| List.isEmpty (acceptablePeople model.query model.people)
-                    in
-                        case model.selectedPerson of
-                            Just person ->
-                                if model.query == person.name then
-                                    model
-                                        |> resetInput
-                                else if validOptions then
-                                    model
-                                        |> removeSelection
-                                        |> resetMenu
-                                else
-                                    { model | query = "" }
-                                        |> removeSelection
-                                        |> resetMenu
+        HandleEscape ->
+            let
+                validOptions =
+                    not <| List.isEmpty (acceptablePeople model.query model.people)
 
-                            Nothing ->
-                                if validOptions then
-                                    model
-                                        |> removeSelection
-                                        |> resetMenu
-                                else
-                                    { model | query = "" }
-                                        |> removeSelection
-                                        |> resetMenu
+                handleEscape =
+                    if validOptions then
+                        model
+                            |> removeSelection
+                            |> resetMenu
+                    else
+                        { model | query = "" }
+                            |> removeSelection
+                            |> resetMenu
 
-                Wrap toTop ->
+                escapedModel =
                     case model.selectedPerson of
                         Just person ->
-                            fst <| update Reset model
+                            if model.query == person.name then
+                                model
+                                    |> resetInput
+                            else
+                                handleEscape
 
                         Nothing ->
-                            if toTop then
-                                { model
-                                    | autoState = Autocomplete.resetToLastItem (acceptablePeople model.query model.people) updateConfig model.howManyToShow model.autoState
-                                    , selectedPerson = List.head <| List.reverse <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
-                                }
-                            else
-                                { model
-                                    | autoState = Autocomplete.resetToFirstItem (acceptablePeople model.query model.people) updateConfig model.howManyToShow model.autoState
-                                    , selectedPerson = List.head <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
-                                }
+                            handleEscape
+            in
+                escapedModel ! []
 
-                Reset ->
-                    { model | autoState = Autocomplete.reset updateConfig model.autoState, selectedPerson = Nothing }
+        Wrap toTop ->
+            case model.selectedPerson of
+                Just person ->
+                    update Reset model
 
-                SelectPerson id ->
+                Nothing ->
+                    if toTop then
+                        { model
+                            | autoState = Autocomplete.resetToLastItem (acceptablePeople model.query model.people) updateConfig model.howManyToShow model.autoState
+                            , selectedPerson = List.head <| List.reverse <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
+                        }
+                            ! []
+                    else
+                        { model
+                            | autoState = Autocomplete.resetToFirstItem (acceptablePeople model.query model.people) updateConfig model.howManyToShow model.autoState
+                            , selectedPerson = List.head <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
+                        }
+                            ! []
+
+        Reset ->
+            { model | autoState = Autocomplete.reset updateConfig model.autoState, selectedPerson = Nothing } ! []
+
+        SelectPersonKeyboard id ->
+            let
+                newModel =
                     setQuery model id
                         |> resetMenu
+            in
+                newModel ! []
 
-                PreviewPerson id ->
-                    { model | selectedPerson = Just <| getPersonAtId model.people id }
+        SelectPersonMouse id ->
+            let
+                newModel =
+                    setQuery model id
+                        |> resetMenu
+            in
+                ( newModel, Task.perform (\err -> NoOp) (\_ -> NoOp) (Dom.focus "president-input") )
 
-                NoOp ->
-                    model
-    in
-        newModel ! []
+        PreviewPerson id ->
+            { model | selectedPerson = Just <| getPersonAtId model.people id } ! []
+
+        NoOp ->
+            model ! []
 
 
 resetInput model =
@@ -165,6 +178,7 @@ getPersonAtId people id =
 setQuery model id =
     { model
         | query = .name <| getPersonAtId model.people id
+        , selectedPerson = Just <| getPersonAtId model.people id
     }
 
 
@@ -214,6 +228,7 @@ view model =
                     [ onInput SetQuery
                     , onWithOptions "keydown" options dec
                     , value query
+                    , id "president-input"
                     , property "role" (JE.string "combobox")
                     , property "aria-autocomplete" (JE.string "list")
                     ]
@@ -247,14 +262,14 @@ updateConfig =
                 if code == 38 || code == 40 then
                     Maybe.map PreviewPerson maybeId
                 else if code == 13 then
-                    Maybe.map SelectPerson maybeId
+                    Maybe.map SelectPersonKeyboard maybeId
                 else
                     Just <| Reset
         , onTooLow = Just <| Wrap False
         , onTooHigh = Just <| Wrap True
         , onMouseEnter = \_ -> Nothing
         , onMouseLeave = \_ -> Nothing
-        , onMouseClick = \id -> Just <| SelectPerson id
+        , onMouseClick = \id -> Just <| SelectPersonMouse id
         , separateSelections = False
         }
 
