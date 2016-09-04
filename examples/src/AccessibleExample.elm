@@ -1,4 +1,4 @@
-module Main exposing (..)
+module AccessibleExample exposing (..)
 
 import Autocomplete
 import Html exposing (..)
@@ -57,12 +57,13 @@ type Msg
     | SelectPersonKeyboard String
     | SelectPersonMouse String
     | PreviewPerson String
+    | OnFocus
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case Debug.log "simple" msg of
         SetQuery newQuery ->
             let
                 showMenu =
@@ -73,7 +74,7 @@ update msg model =
         SetAutoState autoMsg ->
             let
                 ( newState, maybeMsg ) =
-                    Autocomplete.update updateConfig autoMsg model.autoState (acceptablePeople model.query model.people) model.howManyToShow
+                    Autocomplete.update updateConfig autoMsg model.howManyToShow model.autoState (acceptablePeople model.query model.people)
 
                 newModel =
                     { model | autoState = newState }
@@ -155,6 +156,9 @@ update msg model =
         PreviewPerson id ->
             { model | selectedPerson = Just <| getPersonAtId model.people id } ! []
 
+        OnFocus ->
+            model ! []
+
         NoOp ->
             model ! []
 
@@ -234,13 +238,14 @@ view model =
     in
         div []
             (List.append
-                [ h1 [] [ text "U.S. Presidents" ]
-                , input
+                [ input
                     (activeDescendant
                         [ onInput SetQuery
+                        , onFocus OnFocus
                         , onWithOptions "keydown" options dec
                         , value query
                         , id "president-input"
+                        , class "autocomplete-input"
                         , autocomplete False
                         , attribute "aria-owns" "list-of-presidents"
                         , attribute "aria-expanded" <| String.toLower <| toString model.showMenu

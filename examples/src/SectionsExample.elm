@@ -1,4 +1,4 @@
-module Main exposing (..)
+module SectionsExample exposing (..)
 
 import Autocomplete
 import Html exposing (..)
@@ -41,7 +41,7 @@ init =
     , autoState = Autocomplete.empty
     , howManyToShow = List.length presidents
     , query = ""
-    , showMenu = True
+    , showMenu = False
     }
 
 
@@ -50,19 +50,20 @@ type Msg
     | SetAutoState Autocomplete.Msg
     | Reset
     | SelectPerson String
+    | OnFocus
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case Debug.log "sections" msg of
         SetQuery newQuery ->
             { model | query = newQuery, showMenu = True } ! []
 
         SetAutoState autoMsg ->
             let
                 ( newState, maybeMsg ) =
-                    Autocomplete.update updateConfig autoMsg model.autoState (acceptablePeople model) model.howManyToShow
+                    Autocomplete.update updateConfig autoMsg model.howManyToShow model.autoState (acceptablePeople model)
 
                 newModel =
                     { model | autoState = newState }
@@ -89,6 +90,9 @@ update msg model =
             }
                 ! []
 
+        OnFocus ->
+            model ! []
+
         NoOp ->
             model ! []
 
@@ -110,9 +114,9 @@ view model =
             )
     in
         div []
-            [ h1 [] [ text "U.S. Presidents" ]
-            , input
+            [ input
                 [ onInput SetQuery
+                , onFocus OnFocus
                 , onWithOptions "keydown" options dec
                 , class "autocomplete-input"
                 , value model.query
@@ -121,7 +125,7 @@ view model =
             , if model.showMenu then
                 viewMenu model
               else
-                text <| "You chose: " ++ model.query
+                div [] []
             ]
 
 
