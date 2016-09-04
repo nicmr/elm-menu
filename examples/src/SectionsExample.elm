@@ -165,7 +165,12 @@ updateConfig =
         { onKeyDown =
             \code maybeId ->
                 if code == 38 || code == 40 then
-                    Nothing
+                    case Debug.log "maybeId" maybeId of
+                        Just id ->
+                            Nothing
+
+                        Nothing ->
+                            Just Reset
                 else if code == 13 then
                     Maybe.map SelectPerson maybeId
                 else
