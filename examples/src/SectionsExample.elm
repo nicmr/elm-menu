@@ -56,7 +56,7 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "sections" msg of
+    case msg of
         SetQuery newQuery ->
             { model | query = newQuery, showMenu = True } ! []
 
@@ -76,7 +76,7 @@ update msg model =
                         update updateMsg newModel
 
         Reset ->
-            { model | autoState = Autocomplete.reset updateConfig model.autoState } ! []
+            { model | autoState = Autocomplete.resetToFirstItem updateConfig (acceptablePeople model) model.howManyToShow model.autoState } ! []
 
         SelectPerson id ->
             { model
@@ -162,25 +162,20 @@ viewMenu model =
 updateConfig : Autocomplete.UpdateConfig Msg Person
 updateConfig =
     Autocomplete.updateConfig
-        { onKeyDown =
+        { toId = .name
+        , onKeyDown =
             \code maybeId ->
                 if code == 38 || code == 40 then
-                    case Debug.log "maybeId" maybeId of
-                        Just id ->
-                            Nothing
-
-                        Nothing ->
-                            Just Reset
+                    Nothing
                 else if code == 13 then
                     Maybe.map SelectPerson maybeId
                 else
                     Just Reset
-        , onTooLow = Nothing
-        , onTooHigh = Nothing
+        , onTooLow = Just Reset
+        , onTooHigh = Just Reset
         , onMouseEnter = \_ -> Nothing
         , onMouseLeave = \_ -> Nothing
         , onMouseClick = \id -> Just <| SelectPerson id
-        , toId = .name
         , separateSelections = True
         }
 
