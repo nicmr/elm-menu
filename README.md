@@ -1,5 +1,7 @@
 # Elm Autocomplete
 
+> Note: I am close to releasing a new API with `4.0`, but am in the process of cleaning up examples and making sure the API makes good sense. I recommend ignoring the `3.x` and below until this version is finished.
+
 [![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
 
 ## Demo
