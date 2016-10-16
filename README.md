@@ -33,7 +33,7 @@ The [API Design Session video](https://www.youtube.com/watch?v=KSuCYUqY058) w/ E
 ## Installation
 
 ```
-elm package install thebritican/elm-autocomplete
+elm-package install thebritican/elm-autocomplete
 ```
 
 ## Setup
@@ -42,9 +42,9 @@ import Autocomplete
 
 
 type alias Model =
-  { autoState = Autocomplete.State -- Own the State of the menu in your model
-  , query = String -- Perhaps you want to filter by a string?
-  , people = List Person -- The data you want to list and filter
+  { autoState : Autocomplete.State -- Own the State of the menu in your model
+  , query : String -- Perhaps you want to filter by a string?
+  , people : List Person -- The data you want to list and filter
   }
 
 -- Let's filter the data however we want
