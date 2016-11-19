@@ -26,16 +26,10 @@ module Autocomplete.Autocomplete
 
 import Char exposing (KeyCode)
 import Html exposing (Html, Attribute)
+import Html.Attributes
 import Html.Keyed
 import Html.Events
 import Keyboard
-import Native.Tricks
-
-
-trickyMap : Attribute Never -> Attribute Msg
-trickyMap =
-    Native.Tricks.trickyMap
-
 
 
 -- MODEL
@@ -266,7 +260,7 @@ viewWithSections config howManyToShow state sections =
         getKeyedItems section =
             ( config.section.toId section, viewSection config state section )
     in
-        Html.Keyed.ul (List.map trickyMap config.section.ul)
+        Html.Keyed.ul (List.map mapNeverToMsg config.section.ul)
             (List.map getKeyedItems sections)
 
 
@@ -277,7 +271,7 @@ viewSection config state section =
             config.section.li section
 
         attributes =
-            List.map trickyMap sectionNode.attributes
+            List.map mapNeverToMsg sectionNode.attributes
 
         customChildren =
             List.map (Html.map (\html -> NoOp)) sectionNode.children
@@ -286,7 +280,7 @@ viewSection config state section =
             ( config.toId datum, viewData config state datum )
 
         viewItemList =
-            Html.Keyed.ul (List.map trickyMap config.ul)
+            Html.Keyed.ul (List.map mapNeverToMsg config.ul)
                 (config.section.getData section
                     |> List.map getKeyedItems
                 )
@@ -308,7 +302,7 @@ viewData { toId, li } { key, mouse } data =
             li (isSelected key) (isSelected mouse) data
 
         customAttributes =
-            (List.map trickyMap listItemData.attributes)
+            (List.map mapNeverToMsg listItemData.attributes)
 
         customLiAttr =
             List.append customAttributes
@@ -333,7 +327,7 @@ viewList : ViewConfig data -> Int -> State -> List data -> Html Msg
 viewList config howManyToShow state data =
     let
         customUlAttr =
-            List.map trickyMap config.ul
+            List.map mapNeverToMsg config.ul
 
         getKeyedItems datum =
             ( config.toId datum, viewItem config state datum )
@@ -354,7 +348,7 @@ viewItem { toId, li } { key, mouse } data =
             li (isSelected key) (isSelected mouse) data
 
         customAttributes =
-            (List.map trickyMap listItemData.attributes)
+            (List.map mapNeverToMsg listItemData.attributes)
 
         customLiAttr =
             List.append customAttributes
@@ -452,3 +446,12 @@ sectionConfig { toId, getData, ul, li } =
     , ul = ul
     , li = li
     }
+
+
+
+-- HELPERS
+
+
+mapNeverToMsg : Attribute Never -> Attribute Msg
+mapNeverToMsg msg =
+    Html.Attributes.map (\_ -> NoOp) msg

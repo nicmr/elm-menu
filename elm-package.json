@@ -1,5 +1,5 @@
 {
-    "version": "4.0.1",
+    "version": "4.0.3",
     "summary": "A customizable autocomplete component",
     "repository": "https://github.com/thebritican/elm-autocomplete.git",
     "license": "BSD3",
@@ -9,7 +9,6 @@
     "exposed-modules": [
         "Autocomplete"
     ],
-    "native-modules": true,
     "dependencies": {
         "elm-lang/core": "5.0.0 <= v < 6.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
