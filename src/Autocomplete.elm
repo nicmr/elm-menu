@@ -10,6 +10,7 @@ module Autocomplete
         , UpdateConfig
         , ViewConfig
         , ViewWithSectionsConfig
+        , current
         , empty
         , reset
         , resetToFirstItem
@@ -50,7 +51,7 @@ I recommend looking at the [examples](https://github.com/thebritican/elm-autocom
 
 # State
 
-@docs State, empty, reset, resetToFirstItem, resetToLastItem, KeySelected, MouseSelected
+@docs State, current, empty, reset, resetToFirstItem, resetToLastItem, KeySelected, MouseSelected
 
 
 # Definitions
@@ -104,6 +105,13 @@ type alias KeySelected =
 -}
 type alias MouseSelected =
     Bool
+
+
+{-| Current State.
+-}
+current : State -> ( Maybe String, Maybe String )
+current (State state) =
+    Internal.current state
 
 
 {-| A State with nothing selected.

@@ -10,6 +10,7 @@ module Autocomplete.Autocomplete
         , UpdateConfig
         , ViewConfig
         , ViewWithSectionsConfig
+        , current
         , empty
         , reset
         , resetToFirstItem
@@ -47,6 +48,11 @@ type alias KeySelected =
 
 type alias MouseSelected =
     Bool
+
+
+current : State -> ( Maybe String, Maybe String )
+current state =
+    ( state.key, state.mouse )
 
 
 empty : State
