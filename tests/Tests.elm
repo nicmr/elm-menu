@@ -3,51 +3,40 @@ module Tests exposing (..)
 -- import Html
 -- import Html.Attributes exposing (..)
 
+import Autocomplete
 import Expect
-import String
 import Test exposing (..)
 
 
--- updateConfig : Autocomplete.UpdateConfig msg Person
--- updateConfig =
---     Autocomplete.updateConfig
---         { onKeyDown =
---             \code maybeId -> Nothing
---         , onTooLow = Nothing
---         , onTooHigh = Nothing
---         , onMouseEnter = \_ -> Nothing
---         , onMouseLeave = \_ -> Nothing
---         , onMouseClick = \id -> Nothing
---         , toId = .name
---         }
--- viewConfig : Autocomplete.ViewConfig Person
--- viewConfig =
---     Autocomplete.viewConfig
---         { toId = .name
---         , ul = [ class "autocomplete-list" ]
---         , li = myLi
---         , input = [ class "autocomplete-input", placeholder "Search by name" ]
---         }
---
---
--- myLi :
---     Autocomplete.KeySelected
---     -> Autocomplete.MouseSelected
---     -> Person
---     -> Autocomplete.HtmlDetails Never
--- myLi keySelected mouseSelected person =
---     if keySelected then
---         { attributes = [ class "autocomplete-key-item" ]
---         , children = [ Html.text person.name ]
---         }
---     else if mouseSelected then
---         { attributes = [ class "autocomplete-mouse-item" ]
---         , children = [ Html.text person.name ]
---         }
---     else
---         { attributes = [ class "autocomplete-item" ]
---         , children = [ Html.text person.name ]
---         }
+updateConfigWithSeparateSelections : Autocomplete.UpdateConfig msg Person
+updateConfigWithSeparateSelections =
+    Autocomplete.updateConfig
+        { toId = .name
+        , onKeyDown = \_ _ -> Nothing
+        , onTooLow = Nothing
+        , onTooHigh = Nothing
+        , onMouseEnter = \_ -> Nothing
+        , onMouseLeave = \_ -> Nothing
+        , onMouseClick = \_ -> Nothing
+        , separateSelections = True
+        }
+
+
+updateConfigWithCombinedSelections : Autocomplete.UpdateConfig msg Person
+updateConfigWithCombinedSelections =
+    Autocomplete.updateConfig
+        { toId = .name
+        , onKeyDown = \_ _ -> Nothing
+        , onTooLow = Nothing
+        , onTooHigh = Nothing
+        , onMouseEnter = \_ -> Nothing
+        , onMouseLeave = \_ -> Nothing
+        , onMouseClick = \_ -> Nothing
+        , separateSelections = False
+        }
+
+
+
 -- PEOPLE
 
 
@@ -107,29 +96,48 @@ presidents =
     ]
 
 
+howManyPeopleToShow : Int
+howManyPeopleToShow =
+    5
 
--- all : Test
--- all =
---     describe "completes"
---         [ describe "given list of data"
---             [ test "the first element is selected on down key press"
---                 <| \() ->
---                     let
---                         ( state, maybeMsg ) =
---                             Autocomplete.update updateConfig (Autocomplete.KeyDown 40) Autocomplete.empty presidents 5
---                     in
---                         Expect.equal (Maybe.withDefault "" state.key) "George Washington"
---             ]
---         ]
+
+
+-- TESTS
 
 
 all : Test
 all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+    describe "State"
+        [ test "should empty the state" <|
             \() ->
-                Expect.equal (3 + 7) 10
-        , test "String.left" <|
+                Expect.equal (Autocomplete.current Autocomplete.empty) ( Nothing, Nothing )
+        , test "should reset to empty state when selections are not separated" <|
             \() ->
-                Expect.equal "a" (String.left 1 "abcdefg")
+                let
+                    state =
+                        Autocomplete.reset updateConfigWithCombinedSelections Autocomplete.empty
+                in
+                Expect.equal (Autocomplete.current state) ( Nothing, Nothing )
+        , test "should reset to first item" <|
+            \() ->
+                let
+                    state =
+                        Autocomplete.resetToFirstItem
+                            updateConfigWithCombinedSelections
+                            presidents
+                            howManyPeopleToShow
+                            Autocomplete.empty
+                in
+                Expect.equal (Autocomplete.current state) ( Just "George Washington", Nothing )
+        , test "should reset to last item" <|
+            \() ->
+                let
+                    state =
+                        Autocomplete.resetToLastItem
+                            updateConfigWithCombinedSelections
+                            presidents
+                            howManyPeopleToShow
+                            Autocomplete.empty
+                in
+                Expect.equal (Autocomplete.current state) ( Just "James Monroe", Nothing )
         ]
