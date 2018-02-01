@@ -4,8 +4,8 @@ import Autocomplete
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import String
 import Json.Decode as Json
+import String
 
 
 main : Program Never Model Msg
@@ -91,9 +91,9 @@ update msg model =
                         value
 
                 showMenu =
-                    not << List.isEmpty <| (acceptablePeople query model.people)
+                    not << List.isEmpty <| acceptablePeople query model.people
             in
-                { model | value = value, showMenu = showMenu, query = query } ! []
+            { model | value = value, showMenu = showMenu, query = query } ! []
 
         SetAutoState autoMsg ->
             let
@@ -103,12 +103,12 @@ update msg model =
                 newModel =
                     { model | autoState = newState }
             in
-                case maybeMsg of
-                    Nothing ->
-                        newModel ! []
+            case maybeMsg of
+                Nothing ->
+                    newModel ! []
 
-                    Just updateMsg ->
-                        update updateMsg newModel
+                Just updateMsg ->
+                    update updateMsg newModel
 
         Reset toTop ->
             { model
@@ -125,16 +125,16 @@ update msg model =
                 meh =
                     List.filter (\person -> person.name == id) model.people
             in
-                { model
-                    | query =
-                        List.filter (\person -> person.name == id) model.people
-                            |> List.head
-                            |> Maybe.withDefault (Person "" 0 "" "")
-                            |> .name
-                    , autoState = Autocomplete.empty
-                    , showMenu = False
-                }
-                    ! []
+            { model
+                | query =
+                    List.filter (\person -> person.name == id) model.people
+                        |> List.head
+                        |> Maybe.withDefault (Person "" 0 "" "")
+                        |> .name
+                , autoState = Autocomplete.empty
+                , showMenu = False
+            }
+                ! []
 
         SetCaretPosition pos ->
             { model | caretPos = pos } ! []
@@ -150,7 +150,7 @@ view model =
             { preventDefault = True, stopPropagation = False }
 
         dec =
-            (Json.map
+            Json.map
                 (\code ->
                     if code == 38 || code == 40 then
                         Ok NoOp
@@ -158,7 +158,6 @@ view model =
                         Err "not handling that key"
                 )
                 keyCode
-            )
                 |> Json.andThen fromResult
 
         fromResult : Result String a -> Json.Decoder a
@@ -176,13 +175,13 @@ view model =
             else
                 []
     in
-        div []
-            (List.append
-                [ h1 [] [ text "U.S. Presidents" ]
-                , viewEditor model
-                ]
-                menu
-            )
+    div []
+        (List.append
+            [ h1 [] [ text "U.S. Presidents" ]
+            , viewEditor model
+            ]
+            menu
+        )
 
 
 viewEditor : Model -> Html Msg
@@ -200,7 +199,7 @@ acceptablePeople query people =
         lowerQuery =
             String.toLower query
     in
-        List.filter (String.contains lowerQuery << String.toLower << .name) people
+    List.filter (String.contains lowerQuery << String.toLower << .name) people
 
 
 viewMenu : Model -> Html Msg
@@ -241,11 +240,11 @@ viewConfig =
             , children = [ Html.text person.name ]
             }
     in
-        Autocomplete.viewConfig
-            { toId = .name
-            , ul = [ class "autocomplete-list" ]
-            , li = customizedLi
-            }
+    Autocomplete.viewConfig
+        { toId = .name
+        , ul = [ class "autocomplete-list" ]
+        , li = customizedLi
+        }
 
 
 

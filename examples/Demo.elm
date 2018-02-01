@@ -1,12 +1,12 @@
 module Main exposing (..)
 
+import AccessibleExample
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Tuple
-import AccessibleExample
 import SectionsExample
 import Svg exposing (path)
 import Svg.Attributes exposing (d, fill, viewBox)
+import Tuple
 
 
 main : Program Never Model Msg
@@ -73,8 +73,8 @@ update msg model =
                                 _ ->
                                     model
                     in
-                        { model | accessibleAutocomplete = Tuple.first <| AccessibleExample.update autoMsg model.accessibleAutocomplete }
-                            |> toggleFocus autoMsg
+                    { model | accessibleAutocomplete = Tuple.first <| AccessibleExample.update autoMsg model.accessibleAutocomplete }
+                        |> toggleFocus autoMsg
 
                 SectionsExample autoMsg ->
                     let
@@ -86,10 +86,10 @@ update msg model =
                                 _ ->
                                     model
                     in
-                        { model | sectionsAutocomplete = Tuple.first <| SectionsExample.update autoMsg model.sectionsAutocomplete }
-                            |> toggleFocus autoMsg
+                    { model | sectionsAutocomplete = Tuple.first <| SectionsExample.update autoMsg model.sectionsAutocomplete }
+                        |> toggleFocus autoMsg
     in
-        ( newModel, Cmd.none )
+    ( newModel, Cmd.none )
 
 
 view : Model -> Html Msg

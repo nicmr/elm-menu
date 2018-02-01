@@ -1,13 +1,11 @@
 module Tests exposing (..)
 
-import Test exposing (..)
-import Expect
-
-
 -- import Html
 -- import Html.Attributes exposing (..)
 
+import Expect
 import String
+import Test exposing (..)
 
 
 -- updateConfig : Autocomplete.UpdateConfig msg Person
@@ -128,10 +126,10 @@ presidents =
 all : Test
 all =
     describe "A Test Suite"
-        [ test "Addition"
-            <| \() ->
+        [ test "Addition" <|
+            \() ->
                 Expect.equal (3 + 7) 10
-        , test "String.left"
-            <| \() ->
+        , test "String.left" <|
+            \() ->
                 Expect.equal "a" (String.left 1 "abcdefg")
         ]

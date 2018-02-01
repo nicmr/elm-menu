@@ -1,13 +1,13 @@
 module AccessibleExample exposing (..)
 
 import Autocomplete
+import Dom
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import String
 import Json.Decode as Json
 import Json.Encode as JE
-import Dom
+import String
 import Task
 
 
@@ -65,9 +65,9 @@ update msg model =
         SetQuery newQuery ->
             let
                 showMenu =
-                    not << List.isEmpty <| (acceptablePeople newQuery model.people)
+                    not << List.isEmpty <| acceptablePeople newQuery model.people
             in
-                { model | query = newQuery, showMenu = showMenu, selectedPerson = Nothing } ! []
+            { model | query = newQuery, showMenu = showMenu, selectedPerson = Nothing } ! []
 
         SetAutoState autoMsg ->
             let
@@ -77,12 +77,12 @@ update msg model =
                 newModel =
                     { model | autoState = newState }
             in
-                case maybeMsg of
-                    Nothing ->
-                        newModel ! []
+            case maybeMsg of
+                Nothing ->
+                    newModel ! []
 
-                    Just updateMsg ->
-                        update updateMsg newModel
+                Just updateMsg ->
+                    update updateMsg newModel
 
         HandleEscape ->
             let
@@ -110,7 +110,7 @@ update msg model =
                         Nothing ->
                             handleEscape
             in
-                escapedModel ! []
+            escapedModel ! []
 
         Wrap toTop ->
             case model.selectedPerson of
@@ -121,13 +121,13 @@ update msg model =
                     if toTop then
                         { model
                             | autoState = Autocomplete.resetToLastItem updateConfig (acceptablePeople model.query model.people) model.howManyToShow model.autoState
-                            , selectedPerson = List.head <| List.reverse <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
+                            , selectedPerson = List.head <| List.reverse <| List.take model.howManyToShow <| acceptablePeople model.query model.people
                         }
                             ! []
                     else
                         { model
                             | autoState = Autocomplete.resetToFirstItem updateConfig (acceptablePeople model.query model.people) model.howManyToShow model.autoState
-                            , selectedPerson = List.head <| List.take model.howManyToShow <| (acceptablePeople model.query model.people)
+                            , selectedPerson = List.head <| List.take model.howManyToShow <| acceptablePeople model.query model.people
                         }
                             ! []
 
@@ -140,7 +140,7 @@ update msg model =
                     setQuery model id
                         |> resetMenu
             in
-                newModel ! []
+            newModel ! []
 
         SelectPersonMouse id ->
             let
@@ -148,7 +148,7 @@ update msg model =
                     setQuery model id
                         |> resetMenu
             in
-                ( newModel, Task.attempt (\_ -> NoOp) (Dom.focus "president-input") )
+            ( newModel, Task.attempt (\_ -> NoOp) (Dom.focus "president-input") )
 
         PreviewPerson id ->
             { model | selectedPerson = Just <| getPersonAtId model.people id } ! []
@@ -197,7 +197,7 @@ view model =
             { preventDefault = True, stopPropagation = False }
 
         dec =
-            (Json.map
+            Json.map
                 (\code ->
                     if code == 38 || code == 40 then
                         Ok NoOp
@@ -207,7 +207,6 @@ view model =
                         Err "not handling that key"
                 )
                 keyCode
-            )
                 |> Json.andThen
                     fromResult
 
@@ -237,36 +236,35 @@ view model =
         activeDescendant attributes =
             case model.selectedPerson of
                 Just person ->
-                    (attribute "aria-activedescendant"
+                    attribute "aria-activedescendant"
                         person.name
-                    )
                         :: attributes
 
                 Nothing ->
                     attributes
     in
-        div []
-            (List.append
-                [ input
-                    (activeDescendant
-                        [ onInput SetQuery
-                        , onFocus OnFocus
-                        , onWithOptions "keydown" options dec
-                        , value query
-                        , id "president-input"
-                        , class "autocomplete-input"
-                        , autocomplete False
-                        , attribute "aria-owns" "list-of-presidents"
-                        , attribute "aria-expanded" <| String.toLower <| toString model.showMenu
-                        , attribute "aria-haspopup" <| String.toLower <| toString model.showMenu
-                        , attribute "role" "combobox"
-                        , attribute "aria-autocomplete" "list"
-                        ]
-                    )
-                    []
-                ]
-                menu
-            )
+    div []
+        (List.append
+            [ input
+                (activeDescendant
+                    [ onInput SetQuery
+                    , onFocus OnFocus
+                    , onWithOptions "keydown" options dec
+                    , value query
+                    , id "president-input"
+                    , class "autocomplete-input"
+                    , autocomplete False
+                    , attribute "aria-owns" "list-of-presidents"
+                    , attribute "aria-expanded" <| String.toLower <| toString model.showMenu
+                    , attribute "aria-haspopup" <| String.toLower <| toString model.showMenu
+                    , attribute "role" "combobox"
+                    , attribute "aria-autocomplete" "list"
+                    ]
+                )
+                []
+            ]
+            menu
+        )
 
 
 acceptablePeople : String -> List Person -> List Person
@@ -275,7 +273,7 @@ acceptablePeople query people =
         lowerQuery =
             String.toLower query
     in
-        List.filter (String.contains lowerQuery << String.toLower << .name) people
+    List.filter (String.contains lowerQuery << String.toLower << .name) people
 
 
 viewMenu : Model -> Html Msg
@@ -316,11 +314,11 @@ viewConfig =
             , children = [ Html.text person.name ]
             }
     in
-        Autocomplete.viewConfig
-            { toId = .name
-            , ul = [ class "autocomplete-list" ]
-            , li = customizedLi
-            }
+    Autocomplete.viewConfig
+        { toId = .name
+        , ul = [ class "autocomplete-list" ]
+        , li = customizedLi
+        }
 
 
 

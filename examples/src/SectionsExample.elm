@@ -4,8 +4,8 @@ import Autocomplete
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import String
 import Json.Decode as Json
+import String
 
 
 main : Program Never Model Msg
@@ -67,12 +67,12 @@ update msg model =
                 newModel =
                     { model | autoState = newState }
             in
-                case maybeMsg of
-                    Nothing ->
-                        newModel ! []
+            case maybeMsg of
+                Nothing ->
+                    newModel ! []
 
-                    Just updateMsg ->
-                        update updateMsg newModel
+                Just updateMsg ->
+                    update updateMsg newModel
 
         Reset ->
             { model | autoState = Autocomplete.resetToFirstItem updateConfig (acceptablePeople model) model.howManyToShow model.autoState } ! []
@@ -103,7 +103,7 @@ view model =
             { preventDefault = True, stopPropagation = False }
 
         dec =
-            (Json.map
+            Json.map
                 (\code ->
                     if code == 38 || code == 40 then
                         Ok NoOp
@@ -111,7 +111,6 @@ view model =
                         Err "not handling that key"
                 )
                 keyCode
-            )
                 |> Json.andThen
                     fromResult
 
@@ -124,20 +123,20 @@ view model =
                 Err reason ->
                     Json.fail reason
     in
-        div []
-            [ input
-                [ onInput SetQuery
-                , onFocus OnFocus
-                , onWithOptions "keydown" options dec
-                , class "autocomplete-input"
-                , value model.query
-                ]
-                []
-            , if model.showMenu then
-                viewMenu model
-              else
-                div [] []
+    div []
+        [ input
+            [ onInput SetQuery
+            , onFocus OnFocus
+            , onWithOptions "keydown" options dec
+            , class "autocomplete-input"
+            , value model.query
             ]
+            []
+        , if model.showMenu then
+            viewMenu model
+          else
+            div [] []
+        ]
 
 
 acceptablePeopleByCentury : Model -> List Century
@@ -152,7 +151,7 @@ acceptablePeopleByCentury { query, peopleByCentury } =
         filterPeople century =
             filteredCentury century <| List.filter (String.contains lowerQuery << String.toLower << .name) century.people
     in
-        List.map filterPeople peopleByCentury
+    List.map filterPeople peopleByCentury
 
 
 acceptablePeople : Model -> List Person
@@ -161,7 +160,7 @@ acceptablePeople { query, people } =
         lowerQuery =
             String.toLower query
     in
-        List.filter (String.contains lowerQuery << String.toLower << .name) people
+    List.filter (String.contains lowerQuery << String.toLower << .name) people
 
 
 viewMenu : Model -> Html Msg
@@ -202,12 +201,12 @@ viewConfig =
             , children = [ Html.text person.name ]
             }
     in
-        Autocomplete.viewWithSectionsConfig
-            { toId = .name
-            , ul = [ class "autocomplete-list-with-sections" ]
-            , li = customizedLi
-            , section = sectionConfig
-            }
+    Autocomplete.viewWithSectionsConfig
+        { toId = .name
+        , ul = [ class "autocomplete-list-with-sections" ]
+        , li = customizedLi
+        , section = sectionConfig
+        }
 
 
 sectionConfig : Autocomplete.SectionConfig Person Century
