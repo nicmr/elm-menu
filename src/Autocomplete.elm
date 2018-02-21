@@ -31,7 +31,7 @@ An autocomplete has a lot of uses: form input, mentions, search, etc.
 
 I have (hopefully!) given the users of this library a large amount of customizability.
 
-I recommend looking at the [examples](https://github.com/thebritican/elm-autocomplete/tree/master/examples) before diving into the API or source code.
+I recommend looking at the [examples](https://github.com/akoppela/elm-autocomplete/tree/master/examples) before diving into the API or source code.
 
 
 # View
@@ -307,7 +307,7 @@ You provide the following information in your autocomplete configuration:
     See the [examples] to get a better understanding!
 
 [keyed]: http://package.elm-lang.org/packages/elm-lang/html/latest/Html-Keyed
-[examples]: https://github.com/thebritican/elm-autocomplete/tree/master/examples
+[examples]: https://github.com/akoppela/elm-autocomplete/tree/master/examples
 
 -}
 viewConfig :

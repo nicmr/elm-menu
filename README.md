@@ -1,6 +1,6 @@
 # Elm Autocomplete
 
-## It's a fork of http://package.elm-lang.org/packages/thebritican/elm-autocomplete/latest
+## !!! Fork of http://package.elm-lang.org/packages/thebritican/elm-autocomplete/latest
 
 > Per discussion in [#37](https://github.com/thebritican/elm-autocomplete/issues/37), this library will be moved into `elm-menu` (Since it's really just a menu currently). The `AccessibleExample` (with a simple API and included `input` field) will be the _mostly_ drop-in solution for this library. If you want to build more complicated features (like mentions), use `elm-menu` after the work is done porting it! Meanwhile, you'll have to copy/paste the example... obviously not ideal! The motivation here: no one wants to have 300 lines of boilerplate for the common case of a typical form autocomplete!
 
@@ -18,7 +18,7 @@ Your data is stored separately; keep it in whatever shape makes the most sense f
 Make an issue if this library cannot handle your scenario and we'll investigate together if it makes sense in the larger
 context!
 
-I recommend looking at the [examples](https://github.com/thebritican/elm-autocomplete/tree/master/examples) before diving into the API or source code!
+I recommend looking at the [examples](https://github.com/akoppela/elm-autocomplete/tree/master/examples) before diving into the API or source code!
 
 ## Usage Rules
 
@@ -35,7 +35,7 @@ The [API Design Session video](https://www.youtube.com/watch?v=KSuCYUqY058) w/ E
 ## Installation
 
 ```
-elm-package install thebritican/elm-autocomplete
+elm-package install akoppela/elm-autocomplete
 ```
 
 ## Setup
