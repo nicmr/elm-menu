@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import AccessibleExample
 import Browser
+import ElmLogo
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import SectionsExample
@@ -100,20 +101,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "app-container" ]
-        [ viewElmLink
-        , viewForkMe
+        [ viewForkMe
         , viewApp model
-        ]
-
-
-viewElmLink : Html Msg
-viewElmLink =
-    a [ href "http://elm-lang.org/", value "_blank", class "elm-link" ]
-        [ img
-            [ class "elm-link-image"
-            , src "http://elm-lang.org/assets/logo.svg"
-            ]
-            []
         ]
 
 
@@ -171,14 +160,9 @@ viewHeader model =
         ]
 
 
-viewLogo : Html Msg
+viewLogo : Html msg
 viewLogo =
-    div [ class "logo" ]
-        [ div [ class "green-part" ] []
-        , div [ class "yellow triangle" ] []
-        , div [ class "gray triangle" ] []
-        , div [ class "blue triangle" ] []
-        ]
+    a [ href "http://elm-lang.org/", target "_blank" ] [ ElmLogo.html 150 ]
 
 
 viewExamples : Model -> Html Msg
