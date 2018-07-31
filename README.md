@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
 
 This is a fork of [thebritican/elm-autocomplete](https://github.com/thebritican/elm-autocomplete) because it's not longer maintained.
-[Conta Utvikling AS](https://conta.no/) is going to maintain it from now on.
+[Conta Systemer AS](https://conta.no/) is going to maintain it from now on.
 
 > Per discussion in [#37](https://github.com/thebritican/elm-autocomplete/issues/37),
 > this library is moved into `elm-menu` (Since it's really just a menu currently).
