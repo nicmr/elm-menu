@@ -1,16 +1,17 @@
 # Elm Menu
 
-## !!! Fork of https://github.com/thebritican/elm-autocomplete
+[![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
+
+This is a fork of [thebritican/elm-autocomplete](https://github.com/thebritican/elm-autocomplete) because it's not longer maintained.
+[Conta Utvikling AS](https://conta.no/) is going to maintain it from now on.
 
 > Per discussion in [#37](https://github.com/thebritican/elm-autocomplete/issues/37),
-this library is moved into `elm-menu` (Since it's really just a menu currently).
-The `AccessibleExample` (with a simple API and included `input` field) will be the _mostly_
-drop-in solution for this library. If you want to build more complicated features (like mentions),
-use `elm-menu` after the work is done porting it! Meanwhile, you'll have to copy/paste the example...
-obviously not ideal! The motivation here: no one wants to have 300 lines of boilerplate for the common
-case of a typical form autocomplete!
-
-[![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
+> this library is moved into `elm-menu` (Since it's really just a menu currently).
+> The `AccessibleExample` (with a simple API and included `input` field) will be the _mostly_
+> drop-in solution for this library. If you want to build more complicated features (like mentions),
+> use `elm-menu` after the work is done porting it! Meanwhile, you'll have to copy/paste the example...
+> obviously not ideal! The motivation here: no one wants to have 300 lines of boilerplate for the common
+> case of a typical form autocomplete!
 
 ## Demo
 
