@@ -11402,42 +11402,166 @@ var author$project$Main$viewFooter = A2(
 					A2(author$project$Main$footerLink, 'https://conta.no/', 'Conta Systemer AS')
 				]))
 		]));
+var akoppela$elm_logo$ElmLogo$size = 100;
+var elm$core$String$fromFloat = _String_fromNumber;
+var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var akoppela$elm_logo$ElmLogo$attrs = function (width) {
+	return _List_fromArray(
+		[
+			elm$svg$Svg$Attributes$width(
+			elm$core$String$fromInt(width)),
+			elm$svg$Svg$Attributes$viewBox(
+			'0 0 ' + (elm$core$String$fromFloat(akoppela$elm_logo$ElmLogo$size) + (' ' + elm$core$String$fromFloat(akoppela$elm_logo$ElmLogo$size))))
+		]);
+};
+var elm$core$Basics$sqrt = _Basics_sqrt;
+var akoppela$elm_logo$ElmLogo$distance = elm$core$Basics$sqrt(2);
+var akoppela$elm_logo$ElmLogo$points = function (list) {
+	return A2(
+		elm$core$String$join,
+		' ',
+		A2(
+			elm$core$List$map,
+			function (_n0) {
+				var fst = _n0.a;
+				var snd = _n0.b;
+				return elm$core$String$fromFloat(fst) + (',' + elm$core$String$fromFloat(snd));
+			},
+			list));
+};
+var akoppela$elm_logo$ElmLogo$shift = (2 * akoppela$elm_logo$ElmLogo$distance) / elm$core$Basics$sqrt(2);
+var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var elm$svg$Svg$polygon = elm$svg$Svg$trustedNode('polygon');
+var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
+var akoppela$elm_logo$ElmLogo$group = _List_fromArray(
+	[
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#5A6378'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(0, akoppela$elm_logo$ElmLogo$shift),
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size / 2) - akoppela$elm_logo$ElmLogo$shift, akoppela$elm_logo$ElmLogo$size / 2),
+							_Utils_Tuple2(0, akoppela$elm_logo$ElmLogo$size - akoppela$elm_logo$ElmLogo$shift)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#7FD13B'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$shift, 0),
+							_Utils_Tuple2(((akoppela$elm_logo$ElmLogo$size / 4) + akoppela$elm_logo$ElmLogo$shift) - akoppela$elm_logo$ElmLogo$distance, (akoppela$elm_logo$ElmLogo$size / 4) - akoppela$elm_logo$ElmLogo$distance),
+							_Utils_Tuple2((((akoppela$elm_logo$ElmLogo$size * 3) / 4) - akoppela$elm_logo$ElmLogo$shift) - akoppela$elm_logo$ElmLogo$distance, (akoppela$elm_logo$ElmLogo$size / 4) - akoppela$elm_logo$ElmLogo$distance),
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size / 2) - akoppela$elm_logo$ElmLogo$shift, 0)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#F0AD00'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(((akoppela$elm_logo$ElmLogo$size / 4) + akoppela$elm_logo$ElmLogo$shift) + akoppela$elm_logo$ElmLogo$distance, (akoppela$elm_logo$ElmLogo$size / 4) + akoppela$elm_logo$ElmLogo$distance),
+							_Utils_Tuple2((((akoppela$elm_logo$ElmLogo$size * 3) / 4) - akoppela$elm_logo$ElmLogo$shift) - akoppela$elm_logo$ElmLogo$distance, (akoppela$elm_logo$ElmLogo$size / 4) + akoppela$elm_logo$ElmLogo$distance),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size / 2, (akoppela$elm_logo$ElmLogo$size / 2) - akoppela$elm_logo$ElmLogo$shift)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#60B5CC'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size / 2) + akoppela$elm_logo$ElmLogo$shift, 0),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size, 0),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size, (akoppela$elm_logo$ElmLogo$size / 2) - akoppela$elm_logo$ElmLogo$shift)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#F0AD00'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size, (akoppela$elm_logo$ElmLogo$size / 2) + akoppela$elm_logo$ElmLogo$shift),
+							_Utils_Tuple2(((akoppela$elm_logo$ElmLogo$size * 3) / 4) + akoppela$elm_logo$ElmLogo$shift, (akoppela$elm_logo$ElmLogo$size * 3) / 4),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size, akoppela$elm_logo$ElmLogo$size - akoppela$elm_logo$ElmLogo$shift)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#60B5CC'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$shift, akoppela$elm_logo$ElmLogo$size),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size / 2, (akoppela$elm_logo$ElmLogo$size / 2) + akoppela$elm_logo$ElmLogo$shift),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size - akoppela$elm_logo$ElmLogo$shift, akoppela$elm_logo$ElmLogo$size)
+						])))
+			]),
+		_List_Nil),
+		A2(
+		elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$fill('#7FD13B'),
+				elm$svg$Svg$Attributes$points(
+				akoppela$elm_logo$ElmLogo$points(
+					_List_fromArray(
+						[
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size / 2) + akoppela$elm_logo$ElmLogo$shift, akoppela$elm_logo$ElmLogo$size / 2),
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size * 3) / 4, (akoppela$elm_logo$ElmLogo$size / 4) + akoppela$elm_logo$ElmLogo$shift),
+							_Utils_Tuple2(akoppela$elm_logo$ElmLogo$size - akoppela$elm_logo$ElmLogo$shift, akoppela$elm_logo$ElmLogo$size / 2),
+							_Utils_Tuple2((akoppela$elm_logo$ElmLogo$size * 3) / 4, ((akoppela$elm_logo$ElmLogo$size * 3) / 4) - akoppela$elm_logo$ElmLogo$shift)
+						])))
+			]),
+		_List_Nil)
+	]);
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var akoppela$elm_logo$ElmLogo$html = function (width) {
+	return A2(
+		elm$svg$Svg$svg,
+		akoppela$elm_logo$ElmLogo$attrs(width),
+		akoppela$elm_logo$ElmLogo$group);
+};
 var author$project$Main$viewLogo = A2(
-	elm$html$Html$div,
+	elm$html$Html$a,
 	_List_fromArray(
 		[
-			elm$html$Html$Attributes$class('logo')
+			elm$html$Html$Attributes$href('http://elm-lang.org/'),
+			elm$html$Html$Attributes$target('_blank')
 		]),
 	_List_fromArray(
 		[
-			A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('green-part')
-				]),
-			_List_Nil),
-			A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('yellow triangle')
-				]),
-			_List_Nil),
-			A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('gray triangle')
-				]),
-			_List_Nil),
-			A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('blue triangle')
-				]),
-			_List_Nil)
+			akoppela$elm_logo$ElmLogo$html(150)
 		]));
 var author$project$Main$viewHeader = function (model) {
 	return A2(
@@ -11498,42 +11622,11 @@ var author$project$Main$viewApp = function (model) {
 				author$project$Main$viewFooter
 			]));
 };
-var elm$html$Html$img = _VirtualDom_node('img');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var author$project$Main$viewElmLink = A2(
-	elm$html$Html$a,
-	_List_fromArray(
-		[
-			elm$html$Html$Attributes$href('http://elm-lang.org/'),
-			elm$html$Html$Attributes$value('_blank'),
-			elm$html$Html$Attributes$class('elm-link')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			elm$html$Html$img,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('elm-link-image'),
-					elm$html$Html$Attributes$src('http://elm-lang.org/assets/logo.svg')
-				]),
-			_List_Nil)
-		]));
-var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
-var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
 var elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
 var elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
-var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
-var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var author$project$Main$viewForkMe = A2(
 	elm$html$Html$a,
 	_List_fromArray(
@@ -11593,7 +11686,6 @@ var author$project$Main$view = function (model) {
 			]),
 		_List_fromArray(
 			[
-				author$project$Main$viewElmLink,
 				author$project$Main$viewForkMe,
 				author$project$Main$viewApp(model)
 			]));
