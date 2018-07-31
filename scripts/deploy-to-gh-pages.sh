@@ -7,9 +7,8 @@ git pull origin gh-pages
 git merge master --no-edit
 cd examples
 make demo
-cp site/* ..
 cd ..
-git add app.css logo.css autocomplete.css index.html index.js
+git add examples/site/
 git commit -m 'Update gh-pages files'
-git push origin gh-pages
+git subtree push --prefix examples/site/ origin gh-pages
 git checkout master
