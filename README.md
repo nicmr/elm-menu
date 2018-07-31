@@ -1,6 +1,6 @@
 # Elm Menu
 
-[![Build Status](https://travis-ci.org/thebritican/elm-autocomplete.svg?branch=master)](https://travis-ci.org/thebritican/elm-autocomplete)
+[![Build Status](https://travis-ci.org/ContaSystemer/elm-menu.svg?branch=master)](https://travis-ci.org/ContaSystemer/elm-menu)
 
 This is a fork of [thebritican/elm-autocomplete](https://github.com/thebritican/elm-autocomplete) because it's not longer maintained.
 [Conta Systemer AS](https://conta.no/) is going to maintain it from now on.
