@@ -3,7 +3,7 @@
 set -e
 
 git checkout gh-pages
-git pull origin gh-pages
+git pull origin gh-pages --no-edit
 git merge master --no-edit
 cd examples
 make demo
