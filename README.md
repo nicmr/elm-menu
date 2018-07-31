@@ -17,7 +17,7 @@ This is a fork of [thebritican/elm-autocomplete](https://github.com/thebritican/
 
 Checkout the [landing page] inspired by [React Autosuggest]'s page design
 
-[landing page]: http://thebritican.github.io/elm-autocomplete
+[landing page]: https://contasystemer.github.io/elm-menu/
 [React Autosuggest]: http://react-autosuggest.js.org/
 
 Autocomplete menus have _just enough_ functionality to be tedious to implement again and again.
