@@ -209,7 +209,7 @@ viewFooter =
             [ text "Created by "
             , footerLink "https://twitter.com/gregziegan" "Greg Ziegan"
             , text " and "
-            , footerLink "https://conta.no/" "Conta Systemer AS"
+            , footerLink "https://contasystemer.no/" "Conta Systemer AS"
             ]
         ]
 

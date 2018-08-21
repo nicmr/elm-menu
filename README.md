@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ContaSystemer/elm-menu.svg?branch=master)](https://travis-ci.org/ContaSystemer/elm-menu)
 
 This is a fork of [thebritican/elm-autocomplete](https://github.com/thebritican/elm-autocomplete) because it's not longer maintained.
-[Conta Systemer AS](https://conta.no/) is going to maintain it from now on.
+[Conta Systemer AS](https://contasystemer.no/) is going to maintain it from now on.
 
 > Per discussion in [#37](https://github.com/thebritican/elm-autocomplete/issues/37),
 > this library is moved into `elm-menu` (Since it's really just a menu currently).
@@ -125,3 +125,7 @@ view { autoState, query, people } =
       ]
 
 ```
+
+---
+
+![Conta Systemer AS](https://contasystemer.no/wp-content/themes/contasystemer/images/logo.png)
