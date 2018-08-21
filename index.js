@@ -11399,7 +11399,7 @@ var author$project$Main$viewFooter = A2(
 					elm$html$Html$text('Created by '),
 					A2(author$project$Main$footerLink, 'https://twitter.com/gregziegan', 'Greg Ziegan'),
 					elm$html$Html$text(' and '),
-					A2(author$project$Main$footerLink, 'https://conta.no/', 'Conta Systemer AS')
+					A2(author$project$Main$footerLink, 'https://contasystemer.no/', 'Conta Systemer AS')
 				]))
 		]));
 var akoppela$elm_logo$ElmLogo$size = 100;
