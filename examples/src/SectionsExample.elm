@@ -1,4 +1,4 @@
-module SectionsExample exposing (..)
+module SectionsExample exposing (Century, Model, Msg(..), Person, acceptablePeople, acceptablePeopleByCentury, init, main, presidents, presidentsByCentury, sectionConfig, subscriptions, update, updateConfig, view, viewConfig, viewMenu)
 
 import Browser
 import Html
@@ -114,6 +114,7 @@ view model =
         upDownDecoderHelper code =
             if code == 38 || code == 40 then
                 Decode.succeed ( NoOp, True )
+
             else
                 Decode.fail "not handling that key"
 
@@ -132,6 +133,7 @@ view model =
             []
         , if model.showMenu then
             viewMenu model
+
           else
             Html.div [] []
         ]
@@ -181,8 +183,10 @@ updateConfig =
             \code maybeId ->
                 if code == 38 || code == 40 then
                     Nothing
+
                 else if code == 13 then
                     Maybe.map SelectPerson maybeId
+
                 else
                     Just Reset
         , onTooLow = Just Reset

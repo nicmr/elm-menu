@@ -1,4 +1,4 @@
-module AccessibleExample exposing (..)
+module AccessibleExample exposing (Model, Msg(..), Person, acceptablePeople, boolToString, getPersonAtId, init, main, presidents, removeSelection, resetInput, resetMenu, setQuery, subscriptions, update, updateConfig, view, viewConfig, viewMenu)
 
 import Browser
 import Browser.Dom as Dom
@@ -102,6 +102,7 @@ update msg model =
                         model
                             |> removeSelection
                             |> resetMenu
+
                     else
                         resetInput model
 
@@ -110,6 +111,7 @@ update msg model =
                         Just person ->
                             if model.query == person.name then
                                 resetInput model
+
                             else
                                 handleEscape
 
@@ -139,6 +141,7 @@ update msg model =
                           }
                         , Cmd.none
                         )
+
                     else
                         ( { model
                             | autoState =
@@ -244,8 +247,10 @@ view model =
         upDownEscDecoderHelper code =
             if code == 38 || code == 40 then
                 Decode.succeed NoOp
+
             else if code == 27 then
                 Decode.succeed HandleEscape
+
             else
                 Decode.fail "not handling that key"
 
@@ -258,6 +263,7 @@ view model =
         menu =
             if model.showMenu then
                 [ viewMenu model ]
+
             else
                 []
 
@@ -325,8 +331,10 @@ updateConfig =
             \code maybeId ->
                 if code == 38 || code == 40 then
                     Maybe.map PreviewPerson maybeId
+
                 else if code == 13 then
                     Maybe.map SelectPersonKeyboard maybeId
+
                 else
                     Just Reset
         , onTooLow = Just (Wrap False)

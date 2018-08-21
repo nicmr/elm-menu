@@ -1,29 +1,4 @@
-module Menu.Internal
-    exposing
-        ( HtmlDetails
-        , KeySelected
-        , MouseSelected
-        , Msg
-        , SectionConfig
-        , SectionNode
-        , State
-        , UpdateConfig
-        , ViewConfig
-        , ViewWithSectionsConfig
-        , current
-        , empty
-        , reset
-        , resetToFirstItem
-        , resetToLastItem
-        , sectionConfig
-        , subscription
-        , update
-        , updateConfig
-        , view
-        , viewConfig
-        , viewWithSections
-        , viewWithSectionsConfig
-        )
+module Menu.Internal exposing (HtmlDetails, KeySelected, MouseSelected, Msg, SectionConfig, SectionNode, State, UpdateConfig, ViewConfig, ViewWithSectionsConfig, current, empty, reset, resetToFirstItem, resetToLastItem, sectionConfig, subscription, update, updateConfig, view, viewConfig, viewWithSections, viewWithSectionsConfig)
 
 import Browser.Events
 import Char
@@ -32,6 +7,7 @@ import Html.Attributes as Attrs
 import Html.Events as Events
 import Html.Keyed as Keyed
 import Json.Decode as Decode
+
 
 
 -- MODEL
@@ -65,6 +41,7 @@ reset : UpdateConfig msg data -> State -> State
 reset { separateSelections } { key, mouse } =
     if separateSelections then
         { key = Nothing, mouse = mouse }
+
     else
         empty
 
@@ -91,6 +68,7 @@ resetToFirst config data state =
             if separateSelections then
                 reset config state
                     |> setFirstItem datum
+
             else
                 empty
                     |> setFirstItem datum
@@ -175,12 +153,15 @@ update config msg howManyToShow state data =
             in
             if newKey == state.key && keyCode == 38 then
                 update config WentTooHigh howManyToShow state data
+
             else if newKey == state.key && keyCode == 40 then
                 update config WentTooLow howManyToShow state data
+
             else if config.separateSelections then
                 ( { state | key = newKey }
                 , config.onKeyDown keyCode newKey
                 )
+
             else
                 ( { key = newKey, mouse = newKey }
                 , config.onKeyDown keyCode newKey
@@ -219,6 +200,7 @@ resetMouseStateWithId : Bool -> String -> State -> State
 resetMouseStateWithId separateSelections id state =
     if separateSelections then
         { key = state.key, mouse = Just id }
+
     else
         { key = Just id, mouse = Just id }
 
@@ -232,8 +214,10 @@ getPrevious : String -> String -> Maybe String -> Maybe String
 getPrevious id selectedId resultId =
     if selectedId == id then
         Just id
+
     else if Maybe.withDefault "" resultId == id then
         Just selectedId
+
     else
         resultId
 

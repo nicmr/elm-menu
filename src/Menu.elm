@@ -1,29 +1,13 @@
-module Menu
-    exposing
-        ( HtmlDetails
-        , KeySelected
-        , MouseSelected
-        , Msg
-        , SectionConfig
-        , SectionNode
-        , State
-        , UpdateConfig
-        , ViewConfig
-        , ViewWithSectionsConfig
-        , current
-        , empty
-        , reset
-        , resetToFirstItem
-        , resetToLastItem
-        , sectionConfig
-        , subscription
-        , update
-        , updateConfig
-        , view
-        , viewConfig
-        , viewWithSections
-        , viewWithSectionsConfig
-        )
+module Menu exposing
+    ( view
+    , update, subscription
+    , viewConfig, updateConfig
+    , State, current, empty, reset, resetToFirstItem, resetToLastItem, KeySelected, MouseSelected
+    , Msg, ViewConfig, UpdateConfig, HtmlDetails
+    , viewWithSections
+    , sectionConfig, viewWithSectionsConfig
+    , SectionNode, SectionConfig, ViewWithSectionsConfig
+    )
 
 {-| This library helps you create a menu.
 Your data is stored separately; keep it in whatever shape makes the most sense for your application.

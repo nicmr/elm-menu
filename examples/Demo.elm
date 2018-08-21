@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (Focused(..), Model, Msg(..), footerLink, init, main, subscriptions, update, view, viewApp, viewExamples, viewFooter, viewForkMe, viewHeader, viewLogo, viewSectionsExample, viewSimpleExample)
 
 import AccessibleExample
 import Browser
