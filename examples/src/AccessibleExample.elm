@@ -1,4 +1,24 @@
-module AccessibleExample exposing (Model, Msg(..), Person, acceptablePeople, boolToString, getPersonAtId, init, main, presidents, removeSelection, resetInput, resetMenu, setQuery, subscriptions, update, updateConfig, view, viewConfig, viewMenu)
+module AccessibleExample exposing
+    ( Model
+    , Msg(..)
+    , Person
+    , acceptablePeople
+    , boolToString
+    , getPersonAtId
+    , init
+    , main
+    , presidents
+    , removeSelection
+    , resetInput
+    , resetMenu
+    , setQuery
+    , subscriptions
+    , update
+    , updateConfig
+    , view
+    , viewConfig
+    , viewMenu
+    )
 
 import Browser
 import Browser.Dom as Dom

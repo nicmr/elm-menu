@@ -1,4 +1,22 @@
-module SectionsExample exposing (Century, Model, Msg(..), Person, acceptablePeople, acceptablePeopleByCentury, init, main, presidents, presidentsByCentury, sectionConfig, subscriptions, update, updateConfig, view, viewConfig, viewMenu)
+module SectionsExample exposing
+    ( Century
+    , Model
+    , Msg(..)
+    , Person
+    , acceptablePeople
+    , acceptablePeopleByCentury
+    , init
+    , main
+    , presidents
+    , presidentsByCentury
+    , sectionConfig
+    , subscriptions
+    , update
+    , updateConfig
+    , view
+    , viewConfig
+    , viewMenu
+    )
 
 import Browser
 import Html
