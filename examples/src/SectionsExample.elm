@@ -57,7 +57,7 @@ init =
     { people = presidents
     , peopleByCentury = presidentsByCentury
     , autoState = Menu.empty
-    , howManyToShow = List.length presidents
+    , howManyToShow = 5
     , query = ""
     , showMenu = False
     }

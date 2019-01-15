@@ -1,7 +1,30 @@
-module Menu.Internal exposing (HtmlDetails, KeySelected, MouseSelected, Msg, SectionConfig, SectionNode, State, UpdateConfig, ViewConfig, ViewWithSectionsConfig, current, empty, reset, resetToFirstItem, resetToLastItem, sectionConfig, subscription, update, updateConfig, view, viewConfig, viewWithSections, viewWithSectionsConfig)
+module Menu.Internal exposing
+    ( HtmlDetails
+    , KeySelected
+    , MouseSelected
+    , Msg
+    , SectionConfig
+    , SectionNode
+    , State
+    , UpdateConfig
+    , ViewConfig
+    , ViewWithSectionsConfig
+    , current
+    , empty
+    , reset
+    , resetToFirstItem
+    , resetToLastItem
+    , sectionConfig
+    , subscription
+    , update
+    , updateConfig
+    , view
+    , viewConfig
+    , viewWithSections
+    , viewWithSectionsConfig
+    )
 
 import Browser.Events
-import Char
 import Html
 import Html.Attributes as Attrs
 import Html.Events as Events
@@ -38,7 +61,7 @@ empty =
 
 
 reset : UpdateConfig msg data -> State -> State
-reset { separateSelections } { key, mouse } =
+reset { separateSelections } { mouse } =
     if separateSelections then
         { key = Nothing, mouse = mouse }
 
@@ -66,12 +89,12 @@ resetToFirst config data state =
 
         Just datum ->
             if separateSelections then
-                reset config state
+                state
+                    |> reset config
                     |> setFirstItem datum
 
             else
-                empty
-                    |> setFirstItem datum
+                setFirstItem datum empty
 
 
 resetToLastItem : UpdateConfig msg data -> List data -> Int -> State -> State
@@ -242,21 +265,35 @@ navigateWithKey code ids maybeId =
 
 view : ViewConfig data -> Int -> State -> List data -> Html.Html Msg
 view config howManyToShow state data =
-    viewList config howManyToShow state data
+    let
+        customUlAttr =
+            List.map mapNeverToMsg config.ul
+
+        getKeyedItems datum =
+            ( config.toId datum, viewItem config state datum )
+    in
+    List.take howManyToShow data
+        |> List.map getKeyedItems
+        |> Keyed.ul customUlAttr
 
 
 viewWithSections : ViewWithSectionsConfig data sectionData -> Int -> State -> List sectionData -> Html.Html Msg
 viewWithSections config howManyToShow state sections =
     let
+        customUlAttr =
+            List.map mapNeverToMsg config.section.ul
+
         getKeyedItems section =
-            ( config.section.toId section, viewSection config state section )
+            ( config.section.toId section, viewSection config howManyToShow state section )
     in
-    Keyed.ul (List.map mapNeverToMsg config.section.ul)
-        (List.map getKeyedItems sections)
+    sections
+        |> List.take howManyToShow
+        |> List.map getKeyedItems
+        |> Keyed.ul customUlAttr
 
 
-viewSection : ViewWithSectionsConfig data sectionData -> State -> sectionData -> Html.Html Msg
-viewSection config state section =
+viewSection : ViewWithSectionsConfig data sectionData -> Int -> State -> sectionData -> Html.Html Msg
+viewSection config howManyToShow state section =
     let
         sectionNode =
             config.section.li section
@@ -265,16 +302,16 @@ viewSection config state section =
             List.map mapNeverToMsg sectionNode.attributes
 
         customChildren =
-            List.map (Html.map (\html -> NoOp)) sectionNode.children
+            List.map (Html.map (\_ -> NoOp)) sectionNode.children
 
         getKeyedItems datum =
             ( config.toId datum, viewData config state datum )
 
         viewItemList =
-            Keyed.ul (List.map mapNeverToMsg config.ul)
-                (config.section.getData section
-                    |> List.map getKeyedItems
-                )
+            config.section.getData section
+                |> List.take howManyToShow
+                |> List.map getKeyedItems
+                |> Keyed.ul (List.map mapNeverToMsg config.ul)
 
         children =
             List.append customChildren [ viewItemList ]
@@ -310,23 +347,7 @@ viewData { toId, li } { key, mouse } data =
                 Nothing ->
                     False
     in
-    Html.li customLiAttr
-        (List.map (Html.map (\html -> NoOp)) listItemData.children)
-
-
-viewList : ViewConfig data -> Int -> State -> List data -> Html.Html Msg
-viewList config howManyToShow state data =
-    let
-        customUlAttr =
-            List.map mapNeverToMsg config.ul
-
-        getKeyedItems datum =
-            ( config.toId datum, viewItem config state datum )
-    in
-    Keyed.ul customUlAttr
-        (List.take howManyToShow data
-            |> List.map getKeyedItems
-        )
+    Html.li customLiAttr (List.map (Html.map (\_ -> NoOp)) listItemData.children)
 
 
 viewItem : ViewConfig data -> State -> data -> Html.Html Msg
@@ -356,8 +377,7 @@ viewItem { toId, li } { key, mouse } data =
                 Nothing ->
                     False
     in
-    Html.li customLiAttr
-        (List.map (Html.map (\html -> NoOp)) listItemData.children)
+    Html.li customLiAttr (List.map (Html.map (\_ -> NoOp)) listItemData.children)
 
 
 type alias HtmlDetails msg =
