@@ -793,66 +793,6 @@ var _List_sortWith = F2(function(f, xs)
 
 
 
-// MATH
-
-var _Basics_add = F2(function(a, b) { return a + b; });
-var _Basics_sub = F2(function(a, b) { return a - b; });
-var _Basics_mul = F2(function(a, b) { return a * b; });
-var _Basics_fdiv = F2(function(a, b) { return a / b; });
-var _Basics_idiv = F2(function(a, b) { return (a / b) | 0; });
-var _Basics_pow = F2(Math.pow);
-
-var _Basics_remainderBy = F2(function(b, a) { return a % b; });
-
-// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/divmodnote-letter.pdf
-var _Basics_modBy = F2(function(modulus, x)
-{
-	var answer = x % modulus;
-	return modulus === 0
-		? _Debug_crash(11)
-		:
-	((answer > 0 && modulus < 0) || (answer < 0 && modulus > 0))
-		? answer + modulus
-		: answer;
-});
-
-
-// TRIGONOMETRY
-
-var _Basics_pi = Math.PI;
-var _Basics_e = Math.E;
-var _Basics_cos = Math.cos;
-var _Basics_sin = Math.sin;
-var _Basics_tan = Math.tan;
-var _Basics_acos = Math.acos;
-var _Basics_asin = Math.asin;
-var _Basics_atan = Math.atan;
-var _Basics_atan2 = F2(Math.atan2);
-
-
-// MORE MATH
-
-function _Basics_toFloat(x) { return x; }
-function _Basics_truncate(n) { return n | 0; }
-function _Basics_isInfinite(n) { return n === Infinity || n === -Infinity; }
-
-var _Basics_ceiling = Math.ceil;
-var _Basics_floor = Math.floor;
-var _Basics_round = Math.round;
-var _Basics_sqrt = Math.sqrt;
-var _Basics_log = Math.log;
-var _Basics_isNaN = isNaN;
-
-
-// BOOLEANS
-
-function _Basics_not(bool) { return !bool; }
-var _Basics_and = F2(function(a, b) { return a && b; });
-var _Basics_or  = F2(function(a, b) { return a || b; });
-var _Basics_xor = F2(function(a, b) { return a !== b; });
-
-
-
 // TASKS
 
 function _Scheduler_succeed(value)
@@ -1041,6 +981,66 @@ function _Scheduler_step(proc)
 		}
 	}
 }
+
+
+
+// MATH
+
+var _Basics_add = F2(function(a, b) { return a + b; });
+var _Basics_sub = F2(function(a, b) { return a - b; });
+var _Basics_mul = F2(function(a, b) { return a * b; });
+var _Basics_fdiv = F2(function(a, b) { return a / b; });
+var _Basics_idiv = F2(function(a, b) { return (a / b) | 0; });
+var _Basics_pow = F2(Math.pow);
+
+var _Basics_remainderBy = F2(function(b, a) { return a % b; });
+
+// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/divmodnote-letter.pdf
+var _Basics_modBy = F2(function(modulus, x)
+{
+	var answer = x % modulus;
+	return modulus === 0
+		? _Debug_crash(11)
+		:
+	((answer > 0 && modulus < 0) || (answer < 0 && modulus > 0))
+		? answer + modulus
+		: answer;
+});
+
+
+// TRIGONOMETRY
+
+var _Basics_pi = Math.PI;
+var _Basics_e = Math.E;
+var _Basics_cos = Math.cos;
+var _Basics_sin = Math.sin;
+var _Basics_tan = Math.tan;
+var _Basics_acos = Math.acos;
+var _Basics_asin = Math.asin;
+var _Basics_atan = Math.atan;
+var _Basics_atan2 = F2(Math.atan2);
+
+
+// MORE MATH
+
+function _Basics_toFloat(x) { return x; }
+function _Basics_truncate(n) { return n | 0; }
+function _Basics_isInfinite(n) { return n === Infinity || n === -Infinity; }
+
+var _Basics_ceiling = Math.ceil;
+var _Basics_floor = Math.floor;
+var _Basics_round = Math.round;
+var _Basics_sqrt = Math.sqrt;
+var _Basics_log = Math.log;
+var _Basics_isNaN = isNaN;
+
+
+// BOOLEANS
+
+function _Basics_not(bool) { return !bool; }
+var _Basics_and = F2(function(a, b) { return a && b; });
+var _Basics_or  = F2(function(a, b) { return a || b; });
+var _Basics_xor = F2(function(a, b) { return a !== b; });
 
 
 
@@ -5126,44 +5126,7 @@ var author$project$SectionsExample$presidentsByCentury = _List_fromArray(
 		title: '1900s'
 	}
 	]);
-var elm$core$Basics$add = _Basics_add;
-var elm$core$List$foldl = F3(
-	function (func, acc, list) {
-		foldl:
-		while (true) {
-			if (!list.b) {
-				return acc;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				var $temp$func = func,
-					$temp$acc = A2(func, x, acc),
-					$temp$list = xs;
-				func = $temp$func;
-				acc = $temp$acc;
-				list = $temp$list;
-				continue foldl;
-			}
-		}
-	});
-var elm$core$List$length = function (xs) {
-	return A3(
-		elm$core$List$foldl,
-		F2(
-			function (_n0, i) {
-				return i + 1;
-			}),
-		0,
-		xs);
-};
-var author$project$SectionsExample$init = {
-	autoState: author$project$Menu$empty,
-	howManyToShow: elm$core$List$length(author$project$SectionsExample$presidents),
-	people: author$project$SectionsExample$presidents,
-	peopleByCentury: author$project$SectionsExample$presidentsByCentury,
-	query: '',
-	showMenu: false
-};
+var author$project$SectionsExample$init = {autoState: author$project$Menu$empty, howManyToShow: 5, people: author$project$SectionsExample$presidents, peopleByCentury: author$project$SectionsExample$presidentsByCentury, query: '', showMenu: false};
 var author$project$Main$init = {accessibleAutocomplete: author$project$AccessibleExample$init, currentFocus: author$project$Main$None, sectionsAutocomplete: author$project$SectionsExample$init};
 var author$project$AccessibleExample$SetAutoState = function (a) {
 	return {$: 'SetAutoState', a: a};
@@ -5244,6 +5207,25 @@ var elm$core$Array$SubTree = function (a) {
 	return {$: 'SubTree', a: a};
 };
 var elm$core$Elm$JsArray$initializeFromList = _JsArray_initializeFromList;
+var elm$core$List$foldl = F3(
+	function (func, acc, list) {
+		foldl:
+		while (true) {
+			if (!list.b) {
+				return acc;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				var $temp$func = func,
+					$temp$acc = A2(func, x, acc),
+					$temp$list = xs;
+				func = $temp$func;
+				acc = $temp$acc;
+				list = $temp$list;
+				continue foldl;
+			}
+		}
+	});
 var elm$core$List$reverse = function (list) {
 	return A3(elm$core$List$foldl, elm$core$List$cons, _List_Nil, list);
 };
@@ -5294,6 +5276,7 @@ var elm$core$Array$treeFromBuilder = F2(
 			}
 		}
 	});
+var elm$core$Basics$add = _Basics_add;
 var elm$core$Basics$floor = _Basics_floor;
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$Basics$max = F2(
@@ -5412,6 +5395,16 @@ var elm$core$Char$isDigit = function (_char) {
 };
 var elm$core$Char$isAlphaNum = function (_char) {
 	return elm$core$Char$isLower(_char) || (elm$core$Char$isUpper(_char) || elm$core$Char$isDigit(_char));
+};
+var elm$core$List$length = function (xs) {
+	return A3(
+		elm$core$List$foldl,
+		F2(
+			function (_n0, i) {
+				return i + 1;
+			}),
+		0,
+		xs);
 };
 var elm$core$List$map2 = _List_map2;
 var elm$core$List$rangeHelp = F3(
@@ -10179,7 +10172,6 @@ var author$project$AccessibleExample$updateConfig = author$project$Menu$updateCo
 var author$project$Menu$Internal$reset = F2(
 	function (_n0, _n1) {
 		var separateSelections = _n0.separateSelections;
-		var key = _n1.key;
 		var mouse = _n1.mouse;
 		return separateSelections ? {key: elm$core$Maybe$Nothing, mouse: mouse} : author$project$Menu$Internal$empty;
 	});
@@ -10907,7 +10899,7 @@ var author$project$Menu$Internal$viewData = F3(
 			A2(
 				elm$core$List$map,
 				elm$html$Html$map(
-					function (html) {
+					function (_n2) {
 						return author$project$Menu$Internal$NoOp;
 					}),
 				listItemData.children));
@@ -10918,8 +10910,8 @@ var elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
 };
 var elm$html$Html$Keyed$node = elm$virtual_dom$VirtualDom$keyedNode;
 var elm$html$Html$Keyed$ul = elm$html$Html$Keyed$node('ul');
-var author$project$Menu$Internal$viewSection = F3(
-	function (config, state, section) {
+var author$project$Menu$Internal$viewSection = F4(
+	function (config, howManyToShow, state, section) {
 		var sectionNode = config.section.li(section);
 		var getKeyedItems = function (datum) {
 			return _Utils_Tuple2(
@@ -10932,11 +10924,14 @@ var author$project$Menu$Internal$viewSection = F3(
 			A2(
 				elm$core$List$map,
 				getKeyedItems,
-				config.section.getData(section)));
+				A2(
+					elm$core$List$take,
+					howManyToShow,
+					config.section.getData(section))));
 		var customChildren = A2(
 			elm$core$List$map,
 			elm$html$Html$map(
-				function (html) {
+				function (_n0) {
 					return author$project$Menu$Internal$NoOp;
 				}),
 			sectionNode.children);
@@ -10959,12 +10954,16 @@ var author$project$Menu$Internal$viewWithSections = F4(
 		var getKeyedItems = function (section) {
 			return _Utils_Tuple2(
 				config.section.toId(section),
-				A3(author$project$Menu$Internal$viewSection, config, state, section));
+				A4(author$project$Menu$Internal$viewSection, config, howManyToShow, state, section));
 		};
+		var customUlAttr = A2(elm$core$List$map, author$project$Menu$Internal$mapNeverToMsg, config.section.ul);
 		return A2(
 			elm$html$Html$Keyed$ul,
-			A2(elm$core$List$map, author$project$Menu$Internal$mapNeverToMsg, config.section.ul),
-			A2(elm$core$List$map, getKeyedItems, sections));
+			customUlAttr,
+			A2(
+				elm$core$List$map,
+				getKeyedItems,
+				A2(elm$core$List$take, howManyToShow, sections)));
 	});
 var author$project$Menu$viewWithSections = F4(
 	function (_n0, howManyToShow, _n1, sections) {
@@ -11371,12 +11370,12 @@ var author$project$Menu$Internal$viewItem = F3(
 			A2(
 				elm$core$List$map,
 				elm$html$Html$map(
-					function (html) {
+					function (_n2) {
 						return author$project$Menu$Internal$NoOp;
 					}),
 				listItemData.children));
 	});
-var author$project$Menu$Internal$viewList = F4(
+var author$project$Menu$Internal$view = F4(
 	function (config, howManyToShow, state, data) {
 		var getKeyedItems = function (datum) {
 			return _Utils_Tuple2(
@@ -11391,10 +11390,6 @@ var author$project$Menu$Internal$viewList = F4(
 				elm$core$List$map,
 				getKeyedItems,
 				A2(elm$core$List$take, howManyToShow, data)));
-	});
-var author$project$Menu$Internal$view = F4(
-	function (config, howManyToShow, state, data) {
-		return A4(author$project$Menu$Internal$viewList, config, howManyToShow, state, data);
 	});
 var author$project$Menu$view = F4(
 	function (_n0, howManyToShow, _n1, data) {
