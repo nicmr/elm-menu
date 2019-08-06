@@ -51,13 +51,29 @@ elm package install ContaSystemer/elm-menu
 
 ## Setup
 ```elm
-import Menu
+import Menu exposing (input)
+import Html
 
+main =
+  Browser.sandbox { init = init, update = update, view = view }
 
 type alias Model =
   { autoState : Menu.State -- Own the State of the menu in your model
   , query : String -- Perhaps you want to filter by a string?
   , people : List Person -- The data you want to list and filter
+  , howManyToShow : Int
+  }
+
+type alias Person =
+  { name: String
+  }
+
+init : Model
+init 
+  { autoState = Menu.empty
+  , query = ""
+  , people = [Person{name = "Jim"}, Person{name = "Leonard"}]
+  , howManyToShow = 5
   }
 
 -- Let's filter the data however we want
@@ -89,17 +105,19 @@ updateConfig =
         }
 
 type Msg
-  = SetAutocompleteState Menu.Msg
+  = SetAutocompleteState Menu.Msg | SetQuery String
 
 update : Msg -> Model -> Model
-update msg { autoState, query, people, howManyToShow } =
+update msg model =
   case msg of
     SetAutocompleteState autoMsg ->
       let
         (newState, maybeMsg) =
-          Menu.update updateConfig autoMsg howManyToShow autoState (acceptablePeople query people)
+          Menu.update updateConfig autoMsg model.howManyToShow model.autoState (acceptablePeople model.query model.people)
       in
         { model | autoState = newState }
+    SetQuery q ->
+      { model | query = q }
 
 -- setup for your autocomplete view
 viewConfig : Menu.ViewConfig Person
@@ -118,10 +136,10 @@ viewConfig =
 
 -- and let's show it! (See an example for the full code snippet)
 view : Model -> Html Msg
-view { autoState, query, people } =
+view model =
   div []
       [ input [ onInput SetQuery ] []
-      , Html.App.map SetAutocompleteState (Menu.view viewConfig 5 autoState (acceptablePeople query people))
+      , Html.map SetAutocompleteState (Menu.view viewConfig model.howManyToShow model.autoState (acceptablePeople model.query model.people))
       ]
 
 ```
